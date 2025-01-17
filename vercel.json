@@ -9,27 +9,26 @@
       "src": "client/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "build",
-        "buildCommand": "cd client && npm install && npm run vercel-build"
+        "buildCommand": "cd client && npm install && npm run build",
+        "outputDirectory": "client/build"
       }
     }
   ],
   "routes": [
     {
       "src": "/socket.io/(.*)",
-      "dest": "/server.js"
+      "dest": "server.js"
     },
     {
       "src": "/api/(.*)",
-      "dest": "/server.js"
+      "dest": "server.js"
+    },
+    {
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "client/build/$1"
-    },
-    {
-      "src": "/[^.]+",
-      "dest": "client/build/index.html"
+      "dest": "/client/build/index.html"
     }
   ]
 }
