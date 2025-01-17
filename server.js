@@ -452,6 +452,190 @@ async function parseDocx(socket) {
   }
 }
 
+// Helper function to generate natural language summary of tasks
+function generateTaskSummary(tasks) {
+  if (!tasks || tasks.length === 0) {
+    return "No tasks scheduled for this period.";
+  }
+
+  // Group tasks by common themes/keywords
+  const taskThemes = {};
+  tasks.forEach(task => {
+    const text = task.text.toLowerCase();
+    
+    // Common task categories
+    const categories = {
+      meetings: ['meet', 'sync', 'call', 'discussion', 'chat'],
+      reviews: ['review', 'feedback', 'check', 'assess'],
+      development: ['develop', 'code', 'implement', 'build', 'create', 'fix', 'debug'],
+      planning: ['plan', 'strategy', 'roadmap', 'design', 'architect'],
+      documentation: ['document', 'write', 'update docs', 'documentation'],
+      testing: ['test', 'qa', 'quality', 'verify'],
+      deployment: ['deploy', 'release', 'publish', 'ship'],
+    };
+
+    // Categorize the task
+    let categorized = false;
+    for (const [category, keywords] of Object.entries(categories)) {
+      if (keywords.some(keyword => text.includes(keyword))) {
+        taskThemes[category] = taskThemes[category] || [];
+        taskThemes[category].push(task);
+        categorized = true;
+        break;
+      }
+    }
+
+    // If task doesn't fit into predefined categories
+    if (!categorized) {
+      taskThemes.other = taskThemes.other || [];
+      taskThemes.other.push(task);
+    }
+  });
+
+  // Generate natural language summary
+  let summary = "";
+  const themesFound = Object.entries(taskThemes);
+  
+  if (themesFound.length === 1) {
+    const [category, categoryTasks] = themesFound[0];
+    summary = `Their work focuses on ${category} with ${categoryTasks.length} task${categoryTasks.length > 1 ? 's' : ''}.`;
+  } else {
+    summary = "Their work includes ";
+    themesFound.forEach(([category, categoryTasks], index) => {
+      if (index === themesFound.length - 1) {
+        summary += `and ${category} (${categoryTasks.length} task${categoryTasks.length > 1 ? 's' : ''})`;
+      } else {
+        summary += `${category} (${categoryTasks.length} task${categoryTasks.length > 1 ? 's' : ''}), `;
+      }
+    });
+    summary += ".";
+  }
+
+  // Add key highlights
+  const highlights = tasks.filter(task => 
+    task.text.toLowerCase().includes('important') || 
+    task.text.toLowerCase().includes('priority') ||
+    task.text.toLowerCase().includes('urgent')
+  );
+  
+  if (highlights.length > 0) {
+    summary += ` Key priorities include: ${highlights.map(t => t.text).join('; ')}.`;
+  }
+
+  return summary;
+}
+
+// Function to generate report content
+function generateReport(tasks, startDate, endDate, memberName = null) {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  
+  // Filter tasks within date range
+  const filteredTasks = tasks.filter(task => {
+    const taskDate = new Date(task.dueDate || task.date);
+    return taskDate >= start && taskDate <= end;
+  });
+
+  // Sort tasks by date
+  filteredTasks.sort((a, b) => {
+    const dateA = new Date(a.dueDate || a.date);
+    const dateB = new Date(b.dueDate || b.date);
+    return dateA - dateB;
+  });
+
+  // Group tasks by member
+  const tasksByMember = {};
+  filteredTasks.forEach(task => {
+    const member = task.assignedTo;
+    if (!tasksByMember[member]) {
+      tasksByMember[member] = [];
+    }
+    tasksByMember[member].push(task);
+  });
+
+  // Generate report content
+  let content = '';
+  if (memberName) {
+    content += `Task Report for ${memberName}\n`;
+  } else {
+    content += 'Team Task Report\n';
+  }
+  content += `Period: ${start.toLocaleDateString()} to ${end.toLocaleDateString()}\n\n`;
+
+  // Add summary section
+  content += 'Summary:\n';
+  if (memberName) {
+    const tasks = tasksByMember[memberName] || [];
+    if (tasks.length === 0) {
+      content += `${memberName} has no tasks scheduled during this period.\n`;
+    } else {
+      content += `${memberName} has ${tasks.length} task${tasks.length === 1 ? '' : 's'} scheduled`;
+      const uniqueDates = new Set(tasks.map(task => new Date(task.dueDate || task.date).toLocaleDateString()));
+      content += ` across ${uniqueDates.size} day${uniqueDates.size === 1 ? '' : 's'}.\n\n`;
+      content += `Task Overview:\n${generateTaskSummary(tasks)}\n`;
+    }
+  } else {
+    // Team-wide summary
+    const totalTasks = filteredTasks.length;
+    const activeMembers = Object.keys(tasksByMember);
+    content += `Team Overview:\n`;
+    content += `- Total Tasks: ${totalTasks}\n`;
+    content += `- Active Team Members: ${activeMembers.length}\n\n`;
+    
+    // Individual member summaries
+    content += 'Member Summaries:\n';
+    activeMembers.sort().forEach(member => {
+      const memberTasks = tasksByMember[member];
+      const uniqueDates = new Set(memberTasks.map(task => new Date(task.dueDate || task.date).toLocaleDateString()));
+      content += `\n${member}:\n`;
+      content += `- Workload: ${memberTasks.length} task${memberTasks.length === 1 ? '' : 's'} across ${uniqueDates.size} day${uniqueDates.size === 1 ? '' : 's'}\n`;
+      content += `- Overview: ${generateTaskSummary(memberTasks)}\n`;
+    });
+  }
+  content += '\n';
+
+  // Add detailed task listing
+  content += 'Detailed Tasks:\n';
+  if (memberName) {
+    // Single member report
+    const memberTasks = tasksByMember[memberName] || [];
+    const tasksByDate = {};
+    memberTasks.forEach(task => {
+      const date = new Date(task.dueDate || task.date).toLocaleDateString();
+      if (!tasksByDate[date]) tasksByDate[date] = [];
+      tasksByDate[date].push(task);
+    });
+
+    Object.entries(tasksByDate).sort(([dateA], [dateB]) => 
+      new Date(dateA) - new Date(dateB)
+    ).forEach(([date, tasks]) => {
+      content += `\n${date}:\n`;
+      tasks.forEach(task => {
+        content += `- ${task.text}\n`;
+      });
+    });
+  } else {
+    // Team-wide report grouped by date
+    const tasksByDate = {};
+    filteredTasks.forEach(task => {
+      const date = new Date(task.dueDate || task.date).toLocaleDateString();
+      if (!tasksByDate[date]) tasksByDate[date] = [];
+      tasksByDate[date].push(task);
+    });
+
+    Object.entries(tasksByDate).sort(([dateA], [dateB]) => 
+      new Date(dateA) - new Date(dateB)
+    ).forEach(([date, tasks]) => {
+      content += `\n${date}:\n`;
+      tasks.forEach(task => {
+        content += `- [${task.assignedTo}] ${task.text}\n`;
+      });
+    });
+  }
+
+  return content;
+}
+
 app.post('/api/demo', async (req, res) => {
   try {
     const socketId = req.headers['socket-id'];
@@ -530,6 +714,42 @@ io.on('connection', (socket) => {
       saveTasks(tasks);
     } catch (error) {
       console.error('Error saving tasks:', error);
+    }
+  });
+
+  // Handle report export request
+  socket.on('export-report', ({ memberId, startDate, endDate }) => {
+    try {
+      console.log('Generating report:', { memberId, startDate, endDate });
+      
+      const tasksObj = getCurrentTasks();
+      let tasksToReport = [];
+      
+      if (memberId === 'all') {
+        // Collect all tasks from all members
+        Object.values(tasksObj).forEach(memberData => {
+          if (memberData.tasks && Array.isArray(memberData.tasks)) {
+            tasksToReport.push(...memberData.tasks.map(task => ({
+              ...task,
+              assignedTo: memberData.name
+            })));
+          }
+        });
+      } else {
+        // Get tasks for specific member
+        const memberName = teamMembers[memberId]?.name;
+        const memberTasks = tasksObj[memberName]?.tasks || [];
+        tasksToReport = memberTasks.map(task => ({
+          ...task,
+          assignedTo: memberName
+        }));
+      }
+      
+      const content = generateReport(tasksToReport, startDate, endDate, memberId === 'all' ? null : teamMembers[memberId]?.name);
+      socket.emit('report-generated', { content });
+    } catch (error) {
+      console.error('Error generating report:', error);
+      socket.emit('report-generated', { error: error.message });
     }
   });
 
