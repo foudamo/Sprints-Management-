@@ -1,12 +1,13 @@
-# Fireflies Task Management Board
+# Sprints Management System
 
-A modern task management board that integrates with Fireflies.ai API to help you manage your tasks from meeting transcripts.
+A modern task management system designed to help teams track and manage sprint tasks efficiently.
 
 ## Features
-- View and manage tasks from Fireflies meetings
-- Organize tasks in a Kanban-style board
-- Search and filter tasks
+- Calendar view for task management
+- Team member task tracking
+- Task export functionality
 - Real-time updates
+- Meeting notes integration
 
 ## Setup
 
@@ -16,19 +17,20 @@ A modern task management board that integrates with Fireflies.ai API to help you
    npm install
    cd client && npm install
    ```
-3. Create a `.env` file in the root directory with your Fireflies API credentials:
-   ```
-   FIREFLIES_API_KEY=your_api_key
-   ```
-4. Start the development server:
+
+3. Start the development server:
    ```bash
-   npm run dev:full
+   # Start backend server
+   npm start
+   
+   # In another terminal, start frontend
+   cd client && npm start
    ```
 
 ## Tech Stack
 - Frontend: React.js with Material-UI
 - Backend: Node.js with Express
-- API: Fireflies GraphQL API
+- Real-time: Socket.IO
 
-## Note
-You'll need to obtain an API key from Fireflies.ai to use this application. Please visit their documentation for more information.
+## Development
+The system is designed to help teams track tasks and manage sprints effectively. It includes features for viewing tasks in a calendar format, managing team members, and exporting task reports.
