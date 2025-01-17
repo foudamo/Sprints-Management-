@@ -1,0 +1,55 @@
+Overview
+In the Daily Stand-up Meeting for the Pilot Team, attendees discussed key updates, project priorities, and individual tasks. Grayson announced plans to meet with the UN Team next week and clarified the importance of addressing stakeholder feedback, developing tools, and refining the signup process. Team members provided updates on their current work, with Linh and Connie focusing on the signup process, Dipto advancing the Sprint bot, and others tackling various aspects such as database adjustments and AI project management. Action items were assigned, including specific responsibilities for organizing meetings and completing tasks by next Friday, with an emphasis on collaboration and meeting individual deadlines. The session concluded with reminders about design changes and upcoming priorities.
+Notes
+️ Meeting Kickoff and Updates (00:08 - 02:45)
+Grayson plans to organize a meeting with the UN Team next week
+Anmoll sent an email to Grayson with questions, which Grayson affirmed
+ Project Priorities and Plans (02:45 - 05:04)
+Grayson outlined priorities for the next phase:
+Stakeholder feedback from the city
+Building next phase of tools
+Working on partnerships
+Setting up the innovation pipeline
+Platform tweaks, including UN admin panel and signup piece
+Everyone should work on the 'cursor piece' with something to show by next Friday
+Priority should be on the signup process
+‍ Team Updates and Tasks (05:04 - 09:19)
+Linh and Connie: Working on signup process and Alluro piece
+Dipto: Continuing work on Sprint bot and UN Admin side
+Guruprasanna: Changed database schema for multiple domains, working on lambda functions and idea to product
+Ishu: Finishing backend changes for listing city laws, potentially working on frontend using cursor
+Zac: Making smaller chatbot changes, open to larger tasks
+Salman: Preparing for Cinchy meeting, seeking clarity on priorities
+Mohamed: Exploring project management with AI or Firefly, continuing cursor project
+ Final Tasks and Follow-ups (09:24 - 11:29)
+Anmoll: Working on query for 'what is Kali page', Swinchi University plan, and cursor prototype
+Linh reminded chatbot team about design changes on Excel sheet
+Zac to review and implement design changes from the spreadsheet
+Action items
+Grayson Bass
+Organize a meeting with the UN Team next week (00:59)
+Meet with Salman to discuss priorities (08:56)
+Linh
+Work on signup process and Alluro piece (04:24)
+Meet with Grayson to discuss expectations for signup process (05:21)
+Dipto Biswas
+Continue working on Sprint bot (06:07)
+Complete managed content for UN Admin side (06:07)
+Connect with Zach to finish managed cities and manage users for UN admin (06:07)
+Guruprasanna Rajukannan Suresh
+Work with Ishu on lambda functions for multiple domains (06:32)
+Work on idea to product (06:32)
+Ishu Trivedi
+Finish backend changes for listing city laws (06:55)
+Try to use cursor for frontend of listing city laws (06:55)
+Zac Waite
+Make smaller chatbot changes from GitHub issues (07:23)
+Review and implement design changes from the Excel spreadsheet (10:59)
+Salman Naqvi
+Prepare for Cinchy meeting on Wednesday (08:12)
+Mohamed Fouda
+Explore project management with AI or Firefly (09:24)
+Anmoll
+Work on query for 'what is Kali page' as top priority (10:03)
+Continue on Swinchi University plan (10:03)
+Work on cursor prototype (10:03)
