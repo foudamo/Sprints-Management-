@@ -9,7 +9,6 @@
     "client": "cd client && npm start",
     "build": "cd client && npm run build",
     "vercel-build": "cd client && npm install && npm run build",
-    "build-client": "react-scripts build",
     "dev:full": "concurrently \"npm run dev\" \"npm run client\""
   },
   "dependencies": {
