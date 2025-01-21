@@ -7,16 +7,20 @@ const { Server } = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
+
+const isDev = process.env.NODE_ENV !== 'production';
+const origin = isDev ? 'http://localhost:3000' : process.env.VERCEL_URL || 'https://sprints-management.vercel.app';
+
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: origin,
     methods: ["GET", "POST"],
     credentials: true
   }
 });
 
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: origin,
   credentials: true
 }));
 
@@ -758,7 +762,7 @@ io.on('connection', (socket) => {
   });
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
