@@ -1,14 +1,14 @@
 {
   "version": 2,
-  "framework": "create-react-app",
   "builds": [
     {
-      "src": "client/package.json",
+      "src": "client/**",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "build",
+        "zeroConfig": true,
+        "framework": "create-react-app",
         "buildCommand": "cd client && npm install && npm run build",
-        "framework": "create-react-app"
+        "outputDirectory": "client/build"
       }
     },
     {
