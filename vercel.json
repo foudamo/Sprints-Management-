@@ -1,12 +1,14 @@
 {
   "version": 2,
+  "framework": "create-react-app",
   "builds": [
     {
       "src": "client/package.json",
       "use": "@vercel/static-build",
       "config": {
         "distDir": "build",
-        "buildCommand": "cd client && npm install && npm run build"
+        "buildCommand": "cd client && npm install && npm run build",
+        "framework": "create-react-app"
       }
     },
     {
@@ -16,19 +18,22 @@
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/server.js"
+      "src": "/socket.io/(.*)",
+      "dest": "server.js"
     },
     {
-      "src": "/socket.io/(.*)",
-      "dest": "/server.js"
+      "src": "/api/(.*)",
+      "dest": "server.js"
     },
     {
       "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "/client/build/index.html"
+      "dest": "client/build/index.html"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
