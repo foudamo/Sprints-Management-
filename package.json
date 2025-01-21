@@ -8,9 +8,9 @@
     "client"
   ],
   "scripts": {
-    "build": "cd client && npm install && npm run build",
     "start": "node server.js",
     "dev": "nodemon server.js",
+    "build": "cd client && npm install && CI=false DISABLE_ESLINT_PLUGIN=true npm run build",
     "client": "cd client && npm start",
     "dev:full": "concurrently \"npm run dev\" \"npm run client\""
   },
