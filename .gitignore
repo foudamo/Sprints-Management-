@@ -1,8 +1,11 @@
 # Dependencies
 node_modules/
 /client/node_modules
+/.pnp
+.pnp.js
 
 # Production build
+/build/
 /client/build
 
 # Environment variables
@@ -11,36 +14,69 @@ node_modules/
 .env.development.local
 .env.test.local
 .env.production.local
+.envrc
+
+# Testing and Coverage
+/coverage
+/client/coverage
+gcovr-report/
+lcov-report/
+*.gcda
+*.gcno
+*.gcov
+
+# Logs and Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# IDE and Editor files
+.idea/
+.vscode/
+.vs/
+.cache/
+.ccls-cache/
+.swiftpm
+*.swp
+*.swo
+nppBackup/
+
+# OS generated files
+.DS_Store
+.direnv/
 
 # LLM Models and related files
 *.gguf
+*.gguf.json
 *.bin
 models/
 **/models/
 llm/
 **/llm/
 
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Editor directories and files
-.idea/
-.vscode/
-*.swp
-*.swo
-.DS_Store
-
-# Testing
-/coverage
-/client/coverage
+# Build artifacts
+*.o
+*.a
+*.so
+*.dll
+*.exe
+*.d
+*.metallib
+.build/
+build*/
+!build-info.cmake
+!build-info.cpp.in
+!build-info.sh
+!build.zig
+!docs/build.md
 
 # Temporary files
 *.tmp
 *.temp
+*.etag
+*.lastModified
+*.dot
 
-# Local data files
-team_members.json
-current_tasks.json
-original_texts.json
+# Tags
+tags
