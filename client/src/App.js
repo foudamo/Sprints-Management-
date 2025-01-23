@@ -123,6 +123,67 @@ function App() {
     }));
   };
 
+  const onDragEnd = async (result) => {
+    const { destination, source, draggableId } = result;
+
+    if (!destination) return;
+
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      return;
+    }
+
+    const sourceColumn = source.droppableId;
+    const destinationColumn = destination.droppableId;
+
+    // Create new arrays
+    const sourceItems = Array.from(getFilteredMembers().find(member => member.name === sourceColumn).tasks);
+    const destItems = sourceColumn === destinationColumn
+      ? sourceItems
+      : Array.from(getFilteredMembers().find(member => member.name === destinationColumn).tasks);
+
+    // Remove from source
+    const [movedItem] = sourceItems.splice(source.index, 1);
+
+    // Add to destination
+    if (sourceColumn === destinationColumn) {
+      sourceItems.splice(destination.index, 0, movedItem);
+    } else {
+      destItems.splice(destination.index, 0, movedItem);
+    }
+
+    // Create new state
+    const updatedMembers = { ...members };
+    updatedMembers[sourceColumn] = {
+      ...updatedMembers[sourceColumn],
+      tasks: sourceItems
+    };
+    updatedMembers[destinationColumn] = {
+      ...updatedMembers[destinationColumn],
+      tasks: destItems
+    };
+
+    // Update local state
+    setMembers(updatedMembers);
+
+    // Send update to server
+    try {
+      await fetch(`${API_BASE_URL}/api/tasks`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedMembers)
+      });
+      setError(null);
+    } catch (error) {
+      console.error('Error updating tasks:', error);
+      setError('Failed to update tasks');
+    }
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -199,28 +260,30 @@ function App() {
         flexDirection: 'column'
       }}>
         {viewMode === 'columns' ? (
-          <Box sx={{ 
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: 2,
-            height: '100%'
-          }}>
-            {getFilteredMembers().map(member => (
-              <Box 
-                key={member.name}
-                sx={{ 
-                  minWidth: '300px',
-                  maxWidth: '300px'
-                }}
-                role="listitem"
-              >
-                <TaskColumn
-                  member={member}
-                  onUpdate={(tasks) => handleTaskUpdate(member.name, tasks)}
-                />
-              </Box>
-            ))}
-          </Box>
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Box sx={{ 
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: 2,
+              height: '100%'
+            }}>
+              {getFilteredMembers().map(member => (
+                <Box 
+                  key={member.name}
+                  sx={{ 
+                    minWidth: '300px',
+                    maxWidth: '300px'
+                  }}
+                  role="listitem"
+                >
+                  <TaskColumn
+                    member={member}
+                    onUpdate={(tasks) => handleTaskUpdate(member.name, tasks)}
+                  />
+                </Box>
+              ))}
+            </Box>
+          </DragDropContext>
         ) : (
           <Paper 
             elevation={1}
