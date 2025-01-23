@@ -3,14 +3,14 @@
   "builds": [
     {
       "src": "server.js",
-      "use": "@vercel/node@3.0.0"
+      "use": "@vercel/node"
     },
     {
       "src": "client/package.json",
-      "use": "@vercel/static-build@3.0.0",
+      "use": "@vercel/static-build",
       "config": {
-        "distDir": "build",
-        "buildCommand": "npm install && npm run build"
+        "distDir": "client/build",
+        "buildCommand": "cd client && npm install && npm run build"
       }
     }
   ],
