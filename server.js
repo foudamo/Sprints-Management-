@@ -27,8 +27,11 @@ app.use(cors({
 app.use(express.json());
 
 // Serve static files from the React app in production
-if (!isDev) {
+if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'client/build')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+  });
 }
 
 // Global error handler for uncaught exceptions
@@ -766,13 +769,6 @@ io.on('connection', (socket) => {
     console.log('Client disconnected');
   });
 });
-
-// Handle React routing in production
-if (!isDev) {
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client/build/index.html'));
-  });
-}
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
