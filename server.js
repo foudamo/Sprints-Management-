@@ -93,13 +93,13 @@ const DEFAULT_TEAM_MEMBERS = [
 ];
 
 // Path to store team members data
-const TEAM_MEMBERS_PATH = path.join(__dirname, 'team_members.json');
+const TEAM_MEMBERS_PATH = path.join(__dirname, 'data', 'team_members.json');
 
 // Path for storing current tasks
-const TASKS_PATH = path.join(__dirname, 'current_tasks.json');
+const TASKS_PATH = path.join(__dirname, 'data', 'current_tasks.json');
 
 // Path for storing original texts
-const ORIGINAL_TEXTS_PATH = path.join(__dirname, 'original_texts.json');
+const ORIGINAL_TEXTS_PATH = path.join(__dirname, 'data', 'original_texts.json');
 
 // Load team members from file or use defaults
 function loadTeamMembers() {
