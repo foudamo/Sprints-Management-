@@ -17,15 +17,35 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/server.js"
+      "dest": "server.js"
     },
     {
       "src": "/socket.io/(.*)",
-      "dest": "/server.js"
+      "dest": "server.js"
+    },
+    {
+      "src": "/static/(.*)",
+      "dest": "client/build/static/$1"
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "client/build/favicon.ico"
+    },
+    {
+      "src": "/manifest.json",
+      "dest": "client/build/manifest.json"
+    },
+    {
+      "src": "/logo192.png",
+      "dest": "client/build/logo192.png"
+    },
+    {
+      "src": "/logo512.png",
+      "dest": "client/build/logo512.png"
     },
     {
       "src": "/(.*)",
-      "dest": "/client/build/$1"
+      "dest": "client/build/index.html"
     }
   ]
 }
