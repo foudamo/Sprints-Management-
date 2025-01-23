@@ -1,192 +1,104 @@
 import React, { useState } from 'react';
 import { Paper, Typography, Box, IconButton } from '@mui/material';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import TextInput from './TextInput';
 
-const TaskColumn = ({ member, onUpdate }) => {
-  const [editingTask, setEditingTask] = useState(null);
-  const [editText, setEditText] = useState('');
+function TaskColumn({ title, tasks, onTasksUpdate }) {
+  const [isAdding, setIsAdding] = useState(false);
+  const [editingId, setEditingId] = useState(null);
 
-  if (!member?.tasks) {
-    return null;
-  }
-
-  const handleEditStart = (task) => {
-    setEditingTask(task);
-    setEditText(task.text);
+  const handleAddTask = (text) => {
+    if (!text.trim()) return;
+    const newTask = {
+      id: Date.now().toString(),
+      content: text
+    };
+    onTasksUpdate([...tasks, newTask]);
+    setIsAdding(false);
   };
 
-  const handleEditCancel = () => {
-    setEditingTask(null);
-    setEditText('');
-  };
-
-  const handleEditSave = () => {
-    if (!editText.trim()) return;
-
-    const updatedTasks = member.tasks.map(task => 
-      task === editingTask ? { ...task, text: editText.trim() } : task
+  const handleEditTask = (id, newText) => {
+    if (!newText.trim()) return;
+    const updatedTasks = tasks.map(task =>
+      task.id === id ? { ...task, content: newText } : task
     );
-
-    onUpdate(updatedTasks);
-    setEditingTask(null);
-    setEditText('');
+    onTasksUpdate(updatedTasks);
+    setEditingId(null);
   };
 
-  const handleDelete = (taskToDelete) => {
-    const updatedTasks = member.tasks.filter(task => task !== taskToDelete);
-    onUpdate(updatedTasks);
-  };
-
-  const formatDate = (date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric'
-    }).format(new Date(date));
+  const handleDeleteTask = (id) => {
+    const updatedTasks = tasks.filter(task => task.id !== id);
+    onTasksUpdate(updatedTasks);
   };
 
   return (
-    <Paper 
-      elevation={2}
-      sx={{
-        p: 2,
-        minWidth: '300px',
-        maxWidth: '400px',
-        height: 'fit-content',
-        backgroundColor: member.tasks.length === 0 ? 'transparent' : 'background.paper',
-        boxShadow: member.tasks.length === 0 ? 'none' : '0px 2px 6px 2px rgba(0, 0, 0, 0.15)',
-        borderRadius: '16px',
-        border: member.tasks.length === 0 ? '1px dashed rgba(0, 0, 0, 0.12)' : 'none'
-      }}
-    >
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" color={member.tasks.length === 0 ? 'text.secondary' : 'primary'}>
-          {member.name}
-        </Typography>
-        <Typography 
-          variant="body1" 
-          color={member.tasks.length === 0 ? 'text.secondary' : 'primary'}
-          sx={{ 
-            textAlign: 'center',
-            py: 2
-          }}
-        >
-          {member.tasks.length} tasks
-        </Typography>
-      </Box>
+    <Paper sx={{ width: 300, bgcolor: '#f8f9fa', p: 2 }}>
+      <Typography variant="h6" gutterBottom>
+        {title}
+      </Typography>
 
-      {member.tasks.length === 0 ? (
-        <Typography 
-          variant="body1" 
-          color="text.secondary"
-          sx={{ 
-            textAlign: 'center',
-            py: 2
-          }}
-        >
-          No tasks have been added yet
-        </Typography>
+      <Droppable droppableId={title}>
+        {(provided) => (
+          <Box
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+            sx={{ minHeight: 100 }}
+          >
+            {tasks.map((task, index) => (
+              <Draggable key={task.id} draggableId={task.id} index={index}>
+                {(provided) => (
+                  <Paper
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                    sx={{ p: 2, mb: 1, bgcolor: 'white' }}
+                  >
+                    {editingId === task.id ? (
+                      <TextInput
+                        initialValue={task.content}
+                        onSubmit={(text) => handleEditTask(task.id, text)}
+                        onCancel={() => setEditingId(null)}
+                      />
+                    ) : (
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography>{task.content}</Typography>
+                        <Box>
+                          <IconButton size="small" onClick={() => setEditingId(task.id)}>
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton size="small" onClick={() => handleDeleteTask(task.id)}>
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      </Box>
+                    )}
+                  </Paper>
+                )}
+              </Draggable>
+            ))}
+            {provided.placeholder}
+          </Box>
+        )}
+      </Droppable>
+
+      {isAdding ? (
+        <TextInput
+          onSubmit={handleAddTask}
+          onCancel={() => setIsAdding(false)}
+        />
       ) : (
-        <Box>
-          {member.tasks.map((task, index) => (
-            <Box
-              key={index}
-              sx={{
-                bgcolor: 'background.paper',
-                borderRadius: 1,
-                mb: 1,
-                border: '1px solid',
-                borderColor: 'divider',
-                p: 2
-              }}
-            >
-              {editingTask === task ? (
-                <Box sx={{ width: '100%' }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Box sx={{ width: '100%' }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="body1">{task.text}</Typography>
-                        <Box sx={{ display: 'flex', gap: 1 }}>
-                          <IconButton
-                            edge="end"
-                            aria-label="edit"
-                            onClick={() => handleEditStart(task)}
-                            size="small"
-                            sx={{ mr: 0.5 }}
-                          >
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                          <IconButton
-                            edge="end"
-                            aria-label="delete"
-                            onClick={() => handleDelete(task)}
-                            size="small"
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Box>
-                      </Box>
-                    </Box>
-                  </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
-                    <Box sx={{ width: '100%' }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="body1">{task.text}</Typography>
-                        <Box sx={{ display: 'flex', gap: 1 }}>
-                          <IconButton
-                            edge="end"
-                            aria-label="edit"
-                            onClick={() => handleEditStart(task)}
-                            size="small"
-                            sx={{ mr: 0.5 }}
-                          >
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                          <IconButton
-                            edge="end"
-                            aria-label="delete"
-                            onClick={() => handleDelete(task)}
-                            size="small"
-                          >
-                            <DeleteIcon fontSize="small" />
-                          </IconButton>
-                        </Box>
-                      </Box>
-                    </Box>
-                  </Box>
-                </Box>
-              ) : (
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography variant="body1">{task.text}</Typography>
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                    <IconButton
-                      edge="end"
-                      aria-label="edit"
-                      onClick={() => handleEditStart(task)}
-                      size="small"
-                      sx={{ mr: 0.5 }}
-                    >
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton
-                      edge="end"
-                      aria-label="delete"
-                      onClick={() => handleDelete(task)}
-                      size="small"
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
-                </Box>
-              )}
-            </Box>
-          ))}
-        </Box>
+        <IconButton
+          onClick={() => setIsAdding(true)}
+          sx={{ width: '100%', mt: 1 }}
+        >
+          <AddIcon />
+        </IconButton>
       )}
     </Paper>
   );
-};
+}
 
 export default TaskColumn;
