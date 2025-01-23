@@ -41,7 +41,6 @@ function App() {
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   useEffect(() => {
-    // Initialize socket connection
     const newSocket = io('http://localhost:3001', {
       reconnection: true,
       reconnectionAttempts: 5,
@@ -52,7 +51,6 @@ function App() {
     newSocket.on('connect', () => {
       console.log('Connected to server');
       setError(null);
-      // Request initial data
       newSocket.emit('get-team-members');
     });
 
@@ -86,13 +84,12 @@ function App() {
 
     setSocket(newSocket);
 
-    // Cleanup on unmount
     return () => {
       if (newSocket) {
         newSocket.disconnect();
       }
     };
-  }, []); // Empty dependency array - only run once on mount
+  }, []);
 
   const handleTaskUpdate = (memberName, tasks) => {
     if (!socket) return;
@@ -120,7 +117,6 @@ function App() {
     socket.emit('update-team-members', updatedMembers);
   };
 
-  // Get all tasks across all members
   const getAllTasks = () => {
     return Object.values(members).reduce((acc, member) => {
       return acc.concat(member.tasks.map(task => ({
@@ -130,7 +126,6 @@ function App() {
     }, []);
   };
 
-  // Get filtered members based on selected date
   const getFilteredMembers = () => {
     if (!members) return [];
     

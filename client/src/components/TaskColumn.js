@@ -1,23 +1,6 @@
 import React, { useState } from 'react';
-import {
-  Paper,
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
-  IconButton,
-  TextField,
-  Box,
-  Chip
-} from '@mui/material';
-import {
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Check as CheckIcon,
-  Close as CloseIcon,
-  Event as EventIcon
-} from '@mui/icons-material';
+import { Paper, Typography, Box, IconButton } from '@mui/material';
+import { EditIcon, DeleteIcon } from '@mui/icons-material';
 
 const TaskColumn = ({ member, onUpdate }) => {
   const [editingTask, setEditingTask] = useState(null);
@@ -80,11 +63,16 @@ const TaskColumn = ({ member, onUpdate }) => {
         <Typography variant="h6" color={member.tasks.length === 0 ? 'text.secondary' : 'primary'}>
           {member.name}
         </Typography>
-        <Chip 
-          label={`${member.tasks.length} tasks`}
-          color={member.tasks.length === 0 ? 'default' : 'primary'}
-          size="small"
-        />
+        <Typography 
+          variant="body1" 
+          color={member.tasks.length === 0 ? 'text.secondary' : 'primary'}
+          sx={{ 
+            textAlign: 'center',
+            py: 2
+          }}
+        >
+          {member.tasks.length} tasks
+        </Typography>
       </Box>
 
       {member.tasks.length === 0 ? (
@@ -99,70 +87,101 @@ const TaskColumn = ({ member, onUpdate }) => {
           No tasks have been added yet
         </Typography>
       ) : (
-        <List>
+        <Box>
           {member.tasks.map((task, index) => (
-            <ListItem
+            <Box
               key={index}
               sx={{
                 bgcolor: 'background.paper',
                 borderRadius: 1,
                 mb: 1,
                 border: '1px solid',
-                borderColor: 'divider'
+                borderColor: 'divider',
+                p: 2
               }}
             >
-              <Box sx={{ width: '100%', pr: 7 }}>
-                {editingTask === task ? (
-                  <TextField
-                    fullWidth
-                    value={editText}
-                    onChange={(e) => setEditText(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        handleEditSave();
-                      }
-                    }}
-                    autoFocus
-                  />
-                ) : (
-                  <>
-                    <ListItemText 
-                      primary={task.text}
-                      secondary={
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                          <EventIcon fontSize="small" color="action" />
-                          <Typography variant="caption">
-                            {formatDate(task.dueDate)}
-                            {task.timestamp && ` (${task.timestamp})`}
-                          </Typography>
+              {editingTask === task ? (
+                <Box sx={{ width: '100%' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box sx={{ width: '100%' }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="body1">{task.text}</Typography>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <IconButton
+                            edge="end"
+                            aria-label="edit"
+                            onClick={() => handleEditStart(task)}
+                            size="small"
+                            sx={{ mr: 0.5 }}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton
+                            edge="end"
+                            aria-label="delete"
+                            onClick={() => handleDelete(task)}
+                            size="small"
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
                         </Box>
-                      }
-                    />
-                    <ListItemSecondaryAction sx={{ right: 8 }}>
-                      <IconButton
-                        edge="end"
-                        aria-label="edit"
-                        onClick={() => handleEditStart(task)}
-                        size="small"
-                        sx={{ mr: 0.5 }}
-                      >
-                        <EditIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        edge="end"
-                        aria-label="delete"
-                        onClick={() => handleDelete(task)}
-                        size="small"
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </ListItemSecondaryAction>
-                  </>
-                )}
-              </Box>
-            </ListItem>
+                      </Box>
+                    </Box>
+                  </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
+                    <Box sx={{ width: '100%' }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="body1">{task.text}</Typography>
+                        <Box sx={{ display: 'flex', gap: 1 }}>
+                          <IconButton
+                            edge="end"
+                            aria-label="edit"
+                            onClick={() => handleEditStart(task)}
+                            size="small"
+                            sx={{ mr: 0.5 }}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton
+                            edge="end"
+                            aria-label="delete"
+                            onClick={() => handleDelete(task)}
+                            size="small"
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      </Box>
+                    </Box>
+                  </Box>
+                </Box>
+              ) : (
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography variant="body1">{task.text}</Typography>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <IconButton
+                      edge="end"
+                      aria-label="edit"
+                      onClick={() => handleEditStart(task)}
+                      size="small"
+                      sx={{ mr: 0.5 }}
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={() => handleDelete(task)}
+                      size="small"
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                </Box>
+              )}
+            </Box>
           ))}
-        </List>
+        </Box>
       )}
     </Paper>
   );
