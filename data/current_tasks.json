@@ -1,0 +1,948 @@
+{
+  "Grayson Bass": {
+    "name": "Grayson Bass",
+    "tasks": [
+      {
+        "text": "Organize a meeting with the UN Team next week",
+        "dueDate": "2024-12-04T05:00:00.000Z",
+        "assignedTo": "Grayson Bass"
+      },
+      {
+        "text": "Meet with Salman to discuss priorities",
+        "dueDate": "2024-12-04T05:00:00.000Z",
+        "assignedTo": "Grayson Bass"
+      },
+      {
+        "text": "Organize a meeting with the UN Team next week",
+        "dueDate": "2024-12-05T05:00:00.000Z",
+        "assignedTo": "Grayson Bass"
+      },
+      {
+        "text": "Meet with Salman to discuss priorities",
+        "dueDate": "2024-12-05T05:00:00.000Z",
+        "assignedTo": "Grayson Bass"
+      },
+      {
+        "text": "Organize a meeting with the UN Team next week",
+        "dueDate": "2025-01-01T05:00:00.000Z",
+        "assignedTo": "Grayson Bass"
+      },
+      {
+        "text": "Meet with Salman to discuss priorities",
+        "dueDate": "2025-01-01T05:00:00.000Z",
+        "assignedTo": "Grayson Bass"
+      },
+      {
+        "text": "Organize a meeting with the UN Team next week",
+        "dueDate": "2025-01-03T05:00:00.000Z",
+        "assignedTo": "Grayson Bass",
+        "timestamp": "00:59"
+      },
+      {
+        "text": "Meet with Salman to discuss priorities",
+        "dueDate": "2025-01-03T05:00:00.000Z",
+        "assignedTo": "Grayson Bass",
+        "timestamp": "08:56"
+      },
+      {
+        "text": "Organize a meeting with the UN Team next week",
+        "dueDate": "2025-01-10T05:00:00.000Z",
+        "assignedTo": "Grayson Bass",
+        "timestamp": "00:59"
+      },
+      {
+        "text": "Meet with Salman to discuss priorities",
+        "dueDate": "2025-01-10T05:00:00.000Z",
+        "assignedTo": "Grayson Bass",
+        "timestamp": "08:56"
+      },
+      {
+        "text": "Organize a meeting with the UN Team next week",
+        "dueDate": "2025-01-17T15:04:57.225Z",
+        "assignedTo": "Grayson Bass",
+        "timestamp": "00:59"
+      },
+      {
+        "text": "Meet with Salman to discuss priorities",
+        "dueDate": "2025-01-17T15:04:57.225Z",
+        "assignedTo": "Grayson Bass",
+        "timestamp": "08:56"
+      },
+      {
+        "text": "Organize a meeting with the UN Team next week",
+        "dueDate": "2025-01-24T05:00:00.000Z",
+        "assignedTo": "Grayson Bass",
+        "timestamp": "00:59"
+      },
+      {
+        "text": "Meet with Salman to discuss priorities",
+        "dueDate": "2025-01-24T05:00:00.000Z",
+        "assignedTo": "Grayson Bass",
+        "timestamp": "08:56"
+      },
+      {
+        "text": "Organize a meeting with the UN Team next week",
+        "dueDate": "2025-01-04T05:00:00.000Z",
+        "assignedTo": "Grayson Bass",
+        "timestamp": "00:59"
+      },
+      {
+        "text": "Meet with Salman to discuss priorities",
+        "dueDate": "2025-01-04T05:00:00.000Z",
+        "assignedTo": "Grayson Bass",
+        "timestamp": "08:56"
+      },
+      {
+        "text": "Organize a meeting with the UN Team next week",
+        "dueDate": "2025-01-16T05:00:00.000Z",
+        "assignedTo": "Grayson Bass",
+        "timestamp": "00:59"
+      },
+      {
+        "text": "Meet with Salman to discuss priorities",
+        "dueDate": "2025-01-16T05:00:00.000Z",
+        "assignedTo": "Grayson Bass",
+        "timestamp": "08:56"
+      },
+      {
+        "text": "Organize a meeting with the UN Team next week",
+        "dueDate": "2025-01-23T05:00:00.000Z",
+        "assignedTo": "Grayson Bass",
+        "timestamp": "00:59"
+      },
+      {
+        "text": "Meet with Salman to discuss priorities",
+        "dueDate": "2025-01-23T05:00:00.000Z",
+        "assignedTo": "Grayson Bass",
+        "timestamp": "08:56"
+      }
+    ]
+  },
+  "Zac Waite": {
+    "name": "Zac Waite",
+    "tasks": [
+      {
+        "text": "Make smaller chatbot changes from GitHub issues",
+        "dueDate": "2025-01-10T05:00:00.000Z",
+        "assignedTo": "Zac Waite",
+        "timestamp": "07:23"
+      },
+      {
+        "text": "Review and implement design changes from the Excel spreadsheet",
+        "dueDate": "2025-01-10T05:00:00.000Z",
+        "assignedTo": "Zac Waite",
+        "timestamp": "10:59"
+      },
+      {
+        "text": "Make smaller chatbot changes from GitHub issues",
+        "dueDate": "2025-01-17T15:04:57.225Z",
+        "assignedTo": "Zac Waite",
+        "timestamp": "07:23"
+      },
+      {
+        "text": "Review and implement design changes from the Excel spreadsheet",
+        "dueDate": "2025-01-17T15:04:57.225Z",
+        "assignedTo": "Zac Waite",
+        "timestamp": "10:59"
+      },
+      {
+        "text": "Make smaller chatbot changes from GitHub issues",
+        "dueDate": "2025-01-24T05:00:00.000Z",
+        "assignedTo": "Zac Waite",
+        "timestamp": "07:23"
+      },
+      {
+        "text": "Review and implement design changes from the Excel spreadsheet",
+        "dueDate": "2025-01-24T05:00:00.000Z",
+        "assignedTo": "Zac Waite",
+        "timestamp": "10:59"
+      },
+      {
+        "text": "Make smaller chatbot changes from GitHub issues",
+        "dueDate": "2025-01-04T05:00:00.000Z",
+        "assignedTo": "Zac Waite",
+        "timestamp": "07:23"
+      },
+      {
+        "text": "Review and implement design changes from the Excel spreadsheet",
+        "dueDate": "2025-01-04T05:00:00.000Z",
+        "assignedTo": "Zac Waite",
+        "timestamp": "10:59"
+      },
+      {
+        "text": "Make smaller chatbot changes from GitHub issues",
+        "dueDate": "2025-01-16T05:00:00.000Z",
+        "assignedTo": "Zac Waite",
+        "timestamp": "07:23"
+      },
+      {
+        "text": "Review and implement design changes from the Excel spreadsheet",
+        "dueDate": "2025-01-16T05:00:00.000Z",
+        "assignedTo": "Zac Waite",
+        "timestamp": "10:59"
+      },
+      {
+        "text": "Make smaller chatbot changes from GitHub issues",
+        "dueDate": "2025-01-23T05:00:00.000Z",
+        "assignedTo": "Zac Waite",
+        "timestamp": "07:23"
+      },
+      {
+        "text": "Review and implement design changes from the Excel spreadsheet",
+        "dueDate": "2025-01-23T05:00:00.000Z",
+        "assignedTo": "Zac Waite",
+        "timestamp": "10:59"
+      }
+    ]
+  },
+  "Salman Naqvi": {
+    "name": "Salman Naqvi",
+    "tasks": [
+      {
+        "text": "Prepare for Cinchy meeting on Wednesday",
+        "dueDate": "2025-01-17T15:04:57.225Z",
+        "assignedTo": "Salman Naqvi",
+        "timestamp": "08:12"
+      }
+    ]
+  },
+  "Anmoll": {
+    "name": "Anmoll",
+    "tasks": [
+      {
+        "text": "Work on query for 'what is Kali page' as top priority",
+        "dueDate": "2025-01-10T05:00:00.000Z",
+        "assignedTo": "Anmoll",
+        "timestamp": "10:03"
+      },
+      {
+        "text": "Continue on Swinchi University plan",
+        "dueDate": "2025-01-10T05:00:00.000Z",
+        "assignedTo": "Anmoll",
+        "timestamp": "10:03"
+      },
+      {
+        "text": "Work on cursor prototype",
+        "dueDate": "2025-01-10T05:00:00.000Z",
+        "assignedTo": "Anmoll",
+        "timestamp": "10:03"
+      },
+      {
+        "text": "Work on query for 'what is Kali page' as top priority",
+        "dueDate": "2025-01-17T15:04:57.225Z",
+        "assignedTo": "Anmoll",
+        "timestamp": "10:03"
+      },
+      {
+        "text": "Continue on Swinchi University plan",
+        "dueDate": "2025-01-17T15:04:57.225Z",
+        "assignedTo": "Anmoll",
+        "timestamp": "10:03"
+      },
+      {
+        "text": "Work on cursor prototype",
+        "dueDate": "2025-01-17T15:04:57.225Z",
+        "assignedTo": "Anmoll",
+        "timestamp": "10:03"
+      },
+      {
+        "text": "Work on query for 'what is Kali page' as top priority",
+        "dueDate": "2025-01-24T05:00:00.000Z",
+        "assignedTo": "Anmoll",
+        "timestamp": "10:03"
+      },
+      {
+        "text": "Continue on Swinchi University plan",
+        "dueDate": "2025-01-24T05:00:00.000Z",
+        "assignedTo": "Anmoll",
+        "timestamp": "10:03"
+      },
+      {
+        "text": "Work on cursor prototype",
+        "dueDate": "2025-01-24T05:00:00.000Z",
+        "assignedTo": "Anmoll",
+        "timestamp": "10:03"
+      },
+      {
+        "text": "Work on query for 'what is Kali page' as top priority",
+        "dueDate": "2025-01-04T05:00:00.000Z",
+        "assignedTo": "Anmoll",
+        "timestamp": "10:03"
+      },
+      {
+        "text": "Continue on Swinchi University plan",
+        "dueDate": "2025-01-04T05:00:00.000Z",
+        "assignedTo": "Anmoll",
+        "timestamp": "10:03"
+      },
+      {
+        "text": "Work on cursor prototype",
+        "dueDate": "2025-01-04T05:00:00.000Z",
+        "assignedTo": "Anmoll",
+        "timestamp": "10:03"
+      },
+      {
+        "text": "Work on query for 'what is Kali page' as top priority",
+        "dueDate": "2025-01-16T05:00:00.000Z",
+        "assignedTo": "Anmoll",
+        "timestamp": "10:03"
+      },
+      {
+        "text": "Continue on Swinchi University plan",
+        "dueDate": "2025-01-16T05:00:00.000Z",
+        "assignedTo": "Anmoll",
+        "timestamp": "10:03"
+      },
+      {
+        "text": "Work on cursor prototype",
+        "dueDate": "2025-01-16T05:00:00.000Z",
+        "assignedTo": "Anmoll",
+        "timestamp": "10:03"
+      },
+      {
+        "text": "Work on query for 'what is Kali page' as top priority",
+        "dueDate": "2025-01-23T05:00:00.000Z",
+        "assignedTo": "Anmoll",
+        "timestamp": "10:03"
+      },
+      {
+        "text": "Continue on Swinchi University plan",
+        "dueDate": "2025-01-23T05:00:00.000Z",
+        "assignedTo": "Anmoll",
+        "timestamp": "10:03"
+      },
+      {
+        "text": "Work on cursor prototype",
+        "dueDate": "2025-01-23T05:00:00.000Z",
+        "assignedTo": "Anmoll",
+        "timestamp": "10:03"
+      }
+    ]
+  },
+  "Dipto Biswas": {
+    "name": "Dipto Biswas",
+    "tasks": [
+      {
+        "text": "Continue working on Sprint bot",
+        "dueDate": "2024-12-04T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas"
+      },
+      {
+        "text": "Complete managed content for UN Admin side",
+        "dueDate": "2024-12-04T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas"
+      },
+      {
+        "text": "Connect with Zach to finish managed cities and manage users for UN admin",
+        "dueDate": "2024-12-04T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas"
+      },
+      {
+        "text": "Continue working on Sprint bot",
+        "dueDate": "2024-12-05T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas"
+      },
+      {
+        "text": "Complete managed content for UN Admin side",
+        "dueDate": "2024-12-05T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas"
+      },
+      {
+        "text": "Connect with Zach to finish managed cities and manage users for UN admin",
+        "dueDate": "2024-12-05T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas"
+      },
+      {
+        "text": "Continue working on Sprint bot",
+        "dueDate": "2025-01-01T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas"
+      },
+      {
+        "text": "Complete managed content for UN Admin side",
+        "dueDate": "2025-01-01T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas"
+      },
+      {
+        "text": "Connect with Zach to finish managed cities and manage users for UN admin",
+        "dueDate": "2025-01-01T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas"
+      },
+      {
+        "text": "Continue working on ingestion of handwritten Arabic text",
+        "dueDate": "2025-01-02T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas"
+      },
+      {
+        "text": "All team members",
+        "dueDate": "2025-01-02T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas"
+      },
+      {
+        "text": "Explore Transformer Labs tools",
+        "dueDate": "2025-01-02T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas"
+      },
+      {
+        "text": "Continue working on ingestion of handwritten Arabic text",
+        "dueDate": "2024-12-20T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas"
+      },
+      {
+        "text": "All team members",
+        "dueDate": "2024-12-20T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas"
+      },
+      {
+        "text": "Explore Transformer Labs tools",
+        "dueDate": "2024-12-20T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas"
+      },
+      {
+        "text": "Continue working on ingestion of handwritten Arabic text",
+        "dueDate": "2024-12-19T19:19:14.258Z",
+        "assignedTo": "Dipto Biswas"
+      },
+      {
+        "text": "All team members",
+        "dueDate": "2024-12-19T19:19:14.258Z",
+        "assignedTo": "Dipto Biswas"
+      },
+      {
+        "text": "Explore Transformer Labs tools",
+        "dueDate": "2024-12-19T19:19:14.258Z",
+        "assignedTo": "Dipto Biswas"
+      },
+      {
+        "text": "Continue working on Sprint bot",
+        "dueDate": "2025-01-03T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas",
+        "timestamp": "06:07"
+      },
+      {
+        "text": "Complete managed content for UN Admin side",
+        "dueDate": "2025-01-03T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas",
+        "timestamp": "06:07"
+      },
+      {
+        "text": "Connect with Zach to finish managed cities and manage users for UN admin",
+        "dueDate": "2025-01-03T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas",
+        "timestamp": "06:07"
+      },
+      {
+        "text": "Continue working on Sprint bot",
+        "dueDate": "2025-01-10T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas",
+        "timestamp": "06:07"
+      },
+      {
+        "text": "Complete managed content for UN Admin side",
+        "dueDate": "2025-01-10T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas",
+        "timestamp": "06:07"
+      },
+      {
+        "text": "Connect with Zach to finish managed cities and manage users for UN admin",
+        "dueDate": "2025-01-10T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas",
+        "timestamp": "06:07"
+      },
+      {
+        "text": "Continue working on Sprint bot",
+        "dueDate": "2025-01-17T15:04:57.225Z",
+        "assignedTo": "Dipto Biswas",
+        "timestamp": "06:07"
+      },
+      {
+        "text": "Complete managed content for UN Admin side",
+        "dueDate": "2025-01-17T15:04:57.225Z",
+        "assignedTo": "Dipto Biswas",
+        "timestamp": "06:07"
+      },
+      {
+        "text": "Connect with Zach to finish managed cities and manage users for UN admin",
+        "dueDate": "2025-01-17T15:04:57.225Z",
+        "assignedTo": "Dipto Biswas",
+        "timestamp": "06:07"
+      },
+      {
+        "text": "Continue working on Sprint bot",
+        "dueDate": "2025-01-24T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas",
+        "timestamp": "06:07"
+      },
+      {
+        "text": "Complete managed content for UN Admin side",
+        "dueDate": "2025-01-24T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas",
+        "timestamp": "06:07"
+      },
+      {
+        "text": "Connect with Zach to finish managed cities and manage users for UN admin",
+        "dueDate": "2025-01-24T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas",
+        "timestamp": "06:07"
+      },
+      {
+        "text": "Continue working on Sprint bot",
+        "dueDate": "2025-01-04T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas",
+        "timestamp": "06:07"
+      },
+      {
+        "text": "Complete managed content for UN Admin side",
+        "dueDate": "2025-01-04T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas",
+        "timestamp": "06:07"
+      },
+      {
+        "text": "Connect with Zach to finish managed cities and manage users for UN admin",
+        "dueDate": "2025-01-04T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas",
+        "timestamp": "06:07"
+      },
+      {
+        "text": "Continue working on Sprint bot",
+        "dueDate": "2025-01-16T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas",
+        "timestamp": "06:07"
+      },
+      {
+        "text": "Complete managed content for UN Admin side",
+        "dueDate": "2025-01-16T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas",
+        "timestamp": "06:07"
+      },
+      {
+        "text": "Connect with Zach to finish managed cities and manage users for UN admin",
+        "dueDate": "2025-01-16T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas",
+        "timestamp": "06:07"
+      },
+      {
+        "text": "Continue working on Sprint bot",
+        "dueDate": "2025-01-23T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas",
+        "timestamp": "06:07"
+      },
+      {
+        "text": "Complete managed content for UN Admin side",
+        "dueDate": "2025-01-23T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas",
+        "timestamp": "06:07"
+      },
+      {
+        "text": "Connect with Zach to finish managed cities and manage users for UN admin",
+        "dueDate": "2025-01-23T05:00:00.000Z",
+        "assignedTo": "Dipto Biswas",
+        "timestamp": "06:07"
+      }
+    ]
+  },
+  "Ishu Trivedi": {
+    "name": "Ishu Trivedi",
+    "tasks": [
+      {
+        "text": "Finish backend changes for listing city laws",
+        "dueDate": "2024-12-04T05:00:00.000Z",
+        "assignedTo": "Ishu Trivedi"
+      },
+      {
+        "text": "Try to use cursor for frontend of listing city laws",
+        "dueDate": "2024-12-04T05:00:00.000Z",
+        "assignedTo": "Ishu Trivedi"
+      },
+      {
+        "text": "Finish backend changes for listing city laws",
+        "dueDate": "2024-12-05T05:00:00.000Z",
+        "assignedTo": "Ishu Trivedi"
+      },
+      {
+        "text": "Try to use cursor for frontend of listing city laws",
+        "dueDate": "2024-12-05T05:00:00.000Z",
+        "assignedTo": "Ishu Trivedi"
+      },
+      {
+        "text": "Finish backend changes for listing city laws",
+        "dueDate": "2025-01-01T05:00:00.000Z",
+        "assignedTo": "Ishu Trivedi"
+      },
+      {
+        "text": "Try to use cursor for frontend of listing city laws",
+        "dueDate": "2025-01-01T05:00:00.000Z",
+        "assignedTo": "Ishu Trivedi"
+      },
+      {
+        "text": "Finish backend changes for listing city laws",
+        "dueDate": "2025-01-03T05:00:00.000Z",
+        "assignedTo": "Ishu Trivedi",
+        "timestamp": "06:55"
+      },
+      {
+        "text": "Try to use cursor for frontend of listing city laws",
+        "dueDate": "2025-01-03T05:00:00.000Z",
+        "assignedTo": "Ishu Trivedi",
+        "timestamp": "06:55"
+      },
+      {
+        "text": "Finish backend changes for listing city laws",
+        "dueDate": "2025-01-10T05:00:00.000Z",
+        "assignedTo": "Ishu Trivedi",
+        "timestamp": "06:55"
+      },
+      {
+        "text": "Try to use cursor for frontend of listing city laws",
+        "dueDate": "2025-01-10T05:00:00.000Z",
+        "assignedTo": "Ishu Trivedi",
+        "timestamp": "06:55"
+      },
+      {
+        "text": "Finish backend changes for listing city laws",
+        "dueDate": "2025-01-17T15:04:57.225Z",
+        "assignedTo": "Ishu Trivedi",
+        "timestamp": "06:55"
+      },
+      {
+        "text": "Try to use cursor for frontend of listing city laws",
+        "dueDate": "2025-01-17T15:04:57.225Z",
+        "assignedTo": "Ishu Trivedi",
+        "timestamp": "06:55"
+      },
+      {
+        "text": "Finish backend changes for listing city laws",
+        "dueDate": "2025-01-24T05:00:00.000Z",
+        "assignedTo": "Ishu Trivedi",
+        "timestamp": "06:55"
+      },
+      {
+        "text": "Try to use cursor for frontend of listing city laws",
+        "dueDate": "2025-01-24T05:00:00.000Z",
+        "assignedTo": "Ishu Trivedi",
+        "timestamp": "06:55"
+      },
+      {
+        "text": "Finish backend changes for listing city laws",
+        "dueDate": "2025-01-04T05:00:00.000Z",
+        "assignedTo": "Ishu Trivedi",
+        "timestamp": "06:55"
+      },
+      {
+        "text": "Try to use cursor for frontend of listing city laws",
+        "dueDate": "2025-01-04T05:00:00.000Z",
+        "assignedTo": "Ishu Trivedi",
+        "timestamp": "06:55"
+      },
+      {
+        "text": "Finish backend changes for listing city laws",
+        "dueDate": "2025-01-16T05:00:00.000Z",
+        "assignedTo": "Ishu Trivedi",
+        "timestamp": "06:55"
+      },
+      {
+        "text": "Try to use cursor for frontend of listing city laws",
+        "dueDate": "2025-01-16T05:00:00.000Z",
+        "assignedTo": "Ishu Trivedi",
+        "timestamp": "06:55"
+      },
+      {
+        "text": "Finish backend changes for listing city laws",
+        "dueDate": "2025-01-23T05:00:00.000Z",
+        "assignedTo": "Ishu Trivedi",
+        "timestamp": "06:55"
+      },
+      {
+        "text": "Try to use cursor for frontend of listing city laws",
+        "dueDate": "2025-01-23T05:00:00.000Z",
+        "assignedTo": "Ishu Trivedi",
+        "timestamp": "06:55"
+      }
+    ]
+  },
+  "Guruprasanna Rajukannan Suresh": {
+    "name": "Guruprasanna Rajukannan Suresh",
+    "tasks": [
+      {
+        "text": "Work with Ishu on lambda functions for multiple domains",
+        "dueDate": "2025-01-10T05:00:00.000Z",
+        "assignedTo": "Guruprasanna Rajukannan Suresh",
+        "timestamp": "06:32"
+      },
+      {
+        "text": "Work on idea to product",
+        "dueDate": "2025-01-10T05:00:00.000Z",
+        "assignedTo": "Guruprasanna Rajukannan Suresh",
+        "timestamp": "06:32"
+      },
+      {
+        "text": "Work with Ishu on lambda functions for multiple domains",
+        "dueDate": "2025-01-17T15:04:57.225Z",
+        "assignedTo": "Guruprasanna Rajukannan Suresh",
+        "timestamp": "06:32"
+      },
+      {
+        "text": "Work on idea to product",
+        "dueDate": "2025-01-17T15:04:57.225Z",
+        "assignedTo": "Guruprasanna Rajukannan Suresh",
+        "timestamp": "06:32"
+      },
+      {
+        "text": "Work with Ishu on lambda functions for multiple domains",
+        "dueDate": "2025-01-24T05:00:00.000Z",
+        "assignedTo": "Guruprasanna Rajukannan Suresh",
+        "timestamp": "06:32"
+      },
+      {
+        "text": "Work on idea to product",
+        "dueDate": "2025-01-24T05:00:00.000Z",
+        "assignedTo": "Guruprasanna Rajukannan Suresh",
+        "timestamp": "06:32"
+      },
+      {
+        "text": "Work with Ishu on lambda functions for multiple domains",
+        "dueDate": "2025-01-04T05:00:00.000Z",
+        "assignedTo": "Guruprasanna Rajukannan Suresh",
+        "timestamp": "06:32"
+      },
+      {
+        "text": "Work on idea to product",
+        "dueDate": "2025-01-04T05:00:00.000Z",
+        "assignedTo": "Guruprasanna Rajukannan Suresh",
+        "timestamp": "06:32"
+      },
+      {
+        "text": "Work with Ishu on lambda functions for multiple domains",
+        "dueDate": "2025-01-16T05:00:00.000Z",
+        "assignedTo": "Guruprasanna Rajukannan Suresh",
+        "timestamp": "06:32"
+      },
+      {
+        "text": "Work on idea to product",
+        "dueDate": "2025-01-16T05:00:00.000Z",
+        "assignedTo": "Guruprasanna Rajukannan Suresh",
+        "timestamp": "06:32"
+      },
+      {
+        "text": "Work with Ishu on lambda functions for multiple domains",
+        "dueDate": "2025-01-23T05:00:00.000Z",
+        "assignedTo": "Guruprasanna Rajukannan Suresh",
+        "timestamp": "06:32"
+      },
+      {
+        "text": "Work on idea to product",
+        "dueDate": "2025-01-23T05:00:00.000Z",
+        "assignedTo": "Guruprasanna Rajukannan Suresh",
+        "timestamp": "06:32"
+      }
+    ]
+  },
+  "Alexa": {
+    "name": "Alexa",
+    "tasks": [
+      {
+        "text": "Complete the table for Seoul city laws. Meet with Grayson before meeting with Carlos",
+        "dueDate": "2025-01-02T05:00:00.000Z",
+        "assignedTo": "Alexa"
+      },
+      {
+        "text": "Complete the table for Seoul city laws. Meet with Grayson before meeting with Carlos",
+        "dueDate": "2024-12-20T05:00:00.000Z",
+        "assignedTo": "Alexa"
+      },
+      {
+        "text": "Complete the table for Seoul city laws. Meet with Grayson before meeting with Carlos",
+        "dueDate": "2024-12-19T19:19:14.258Z",
+        "assignedTo": "Alexa"
+      }
+    ]
+  },
+  "Connie": {
+    "name": "Connie",
+    "tasks": []
+  },
+  "Linh": {
+    "name": "Linh",
+    "tasks": [
+      {
+        "text": "Work on signup process and Alluro piece",
+        "dueDate": "2024-12-04T05:00:00.000Z",
+        "assignedTo": "Linh"
+      },
+      {
+        "text": "Meet with Grayson to discuss expectations for signup process",
+        "dueDate": "2024-12-04T05:00:00.000Z",
+        "assignedTo": "Linh"
+      },
+      {
+        "text": "Work on signup process and Alluro piece",
+        "dueDate": "2024-12-05T05:00:00.000Z",
+        "assignedTo": "Linh"
+      },
+      {
+        "text": "Meet with Grayson to discuss expectations for signup process",
+        "dueDate": "2024-12-05T05:00:00.000Z",
+        "assignedTo": "Linh"
+      },
+      {
+        "text": "Work on signup process and Alluro piece",
+        "dueDate": "2025-01-01T05:00:00.000Z",
+        "assignedTo": "Linh"
+      },
+      {
+        "text": "Meet with Grayson to discuss expectations for signup process",
+        "dueDate": "2025-01-01T05:00:00.000Z",
+        "assignedTo": "Linh"
+      },
+      {
+        "text": "Work on signup process and Alluro piece",
+        "dueDate": "2025-01-03T05:00:00.000Z",
+        "assignedTo": "Linh",
+        "timestamp": "04:24"
+      },
+      {
+        "text": "Meet with Grayson to discuss expectations for signup process",
+        "dueDate": "2025-01-03T05:00:00.000Z",
+        "assignedTo": "Linh",
+        "timestamp": "05:21"
+      },
+      {
+        "text": "Work on signup process and Alluro piece",
+        "dueDate": "2025-01-10T05:00:00.000Z",
+        "assignedTo": "Linh",
+        "timestamp": "04:24"
+      },
+      {
+        "text": "Meet with Grayson to discuss expectations for signup process",
+        "dueDate": "2025-01-10T05:00:00.000Z",
+        "assignedTo": "Linh",
+        "timestamp": "05:21"
+      },
+      {
+        "text": "Work on signup process and Alluro piece",
+        "dueDate": "2025-01-17T15:04:57.225Z",
+        "assignedTo": "Linh",
+        "timestamp": "04:24"
+      },
+      {
+        "text": "Meet with Grayson to discuss expectations for signup process",
+        "dueDate": "2025-01-17T15:04:57.225Z",
+        "assignedTo": "Linh",
+        "timestamp": "05:21"
+      },
+      {
+        "text": "Work on signup process and Alluro piece",
+        "dueDate": "2025-01-24T05:00:00.000Z",
+        "assignedTo": "Linh",
+        "timestamp": "04:24"
+      },
+      {
+        "text": "Meet with Grayson to discuss expectations for signup process",
+        "dueDate": "2025-01-24T05:00:00.000Z",
+        "assignedTo": "Linh",
+        "timestamp": "05:21"
+      },
+      {
+        "text": "Work on signup process and Alluro piece",
+        "dueDate": "2025-01-04T05:00:00.000Z",
+        "assignedTo": "Linh",
+        "timestamp": "04:24"
+      },
+      {
+        "text": "Meet with Grayson to discuss expectations for signup process",
+        "dueDate": "2025-01-04T05:00:00.000Z",
+        "assignedTo": "Linh",
+        "timestamp": "05:21"
+      },
+      {
+        "text": "Work on signup process and Alluro piece",
+        "dueDate": "2025-01-16T05:00:00.000Z",
+        "assignedTo": "Linh",
+        "timestamp": "04:24"
+      },
+      {
+        "text": "Meet with Grayson to discuss expectations for signup process",
+        "dueDate": "2025-01-16T05:00:00.000Z",
+        "assignedTo": "Linh",
+        "timestamp": "05:21"
+      },
+      {
+        "text": "Work on signup process and Alluro piece",
+        "dueDate": "2025-01-23T05:00:00.000Z",
+        "assignedTo": "Linh",
+        "timestamp": "04:24"
+      },
+      {
+        "text": "Meet with Grayson to discuss expectations for signup process",
+        "dueDate": "2025-01-23T05:00:00.000Z",
+        "assignedTo": "Linh",
+        "timestamp": "05:21"
+      }
+    ]
+  },
+  "Hargun": {
+    "name": "Hargun",
+    "tasks": []
+  },
+  "Mohamed Fouda": {
+    "name": "Mohamed Fouda",
+    "tasks": [
+      {
+        "text": "Explore project management with AI or Firefly",
+        "dueDate": "2024-12-04T05:00:00.000Z",
+        "assignedTo": "Mohamed Fouda"
+      },
+      {
+        "text": "Explore project management with AI or Firefly",
+        "dueDate": "2024-12-05T05:00:00.000Z",
+        "assignedTo": "Mohamed Fouda"
+      },
+      {
+        "text": "Explore project management with AI or Firefly",
+        "dueDate": "2025-01-01T05:00:00.000Z",
+        "assignedTo": "Mohamed Fouda"
+      },
+      {
+        "text": "Explore project management with AI or Firefly",
+        "dueDate": "2025-01-03T05:00:00.000Z",
+        "assignedTo": "Mohamed Fouda",
+        "timestamp": "09:24"
+      },
+      {
+        "text": "Explore project management with AI or Firefly",
+        "dueDate": "2025-01-10T05:00:00.000Z",
+        "assignedTo": "Mohamed Fouda",
+        "timestamp": "09:24"
+      },
+      {
+        "text": "Explore project management with AI or Firefly",
+        "dueDate": "2025-01-17T15:04:57.225Z",
+        "assignedTo": "Mohamed Fouda",
+        "timestamp": "09:24"
+      },
+      {
+        "text": "Explore project management with AI or Firefly",
+        "dueDate": "2025-01-24T05:00:00.000Z",
+        "assignedTo": "Mohamed Fouda",
+        "timestamp": "09:24"
+      },
+      {
+        "text": "Explore project management with AI or Firefly",
+        "dueDate": "2025-01-04T05:00:00.000Z",
+        "assignedTo": "Mohamed Fouda",
+        "timestamp": "09:24"
+      },
+      {
+        "text": "Explore project management with AI or Firefly",
+        "dueDate": "2025-01-16T05:00:00.000Z",
+        "assignedTo": "Mohamed Fouda",
+        "timestamp": "09:24"
+      },
+      {
+        "text": "Explore project management with AI or Firefly",
+        "dueDate": "2025-01-23T05:00:00.000Z",
+        "assignedTo": "Mohamed Fouda",
+        "timestamp": "09:24"
+      }
+    ]
+  }
+}
