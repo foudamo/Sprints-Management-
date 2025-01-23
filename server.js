@@ -9,7 +9,8 @@ const app = express();
 const server = http.createServer(app);
 
 const isDev = process.env.NODE_ENV !== 'production';
-const origin = isDev ? 'http://localhost:3000' : process.env.VERCEL_URL || 'https://sprints-management.vercel.app';
+const vercelUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://sprints-management.vercel.app';
+const origin = isDev ? 'http://localhost:3000' : vercelUrl;
 
 const io = new Server(server, {
   cors: {
