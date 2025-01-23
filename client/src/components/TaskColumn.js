@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Paper, Typography, Box, IconButton } from '@mui/material';
-import { EditIcon, DeleteIcon } from '@mui/icons-material';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const TaskColumn = ({ member, onUpdate }) => {
   const [editingTask, setEditingTask] = useState(null);

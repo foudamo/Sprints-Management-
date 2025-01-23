@@ -1,25 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Container,
-  Box,
-  Typography,
-  Alert,
-  ToggleButton,
-  ToggleButtonGroup,
-  AppBar,
-  Toolbar,
-  LinearProgress,
-  Paper,
-  Divider,
-  ThemeProvider,
-  CssBaseline,
-  Button,
-  IconButton
-} from '@mui/material';
-import {
-  ViewColumn as ViewColumnIcon,
-  CalendarMonth as CalendarMonthIcon
-} from '@mui/icons-material';
+import { Box, Paper, Typography, Container, AppBar, Toolbar, LinearProgress, Divider, ThemeProvider, CssBaseline, Button, IconButton } from '@mui/material';
+import { ViewColumn as ViewColumnIcon, CalendarMonth as CalendarMonthIcon } from '@mui/icons-material';
+import { DragDropContext } from 'react-beautiful-dnd';
 import TaskColumn from './components/TaskColumn';
 import TeamSettings from './components/TeamSettings';
 import TextInput from './components/TextInput';
@@ -29,13 +11,15 @@ import { io } from 'socket.io-client';
 import logoIcon from './assets/logo-icon.svg';
 import logoText from './assets/logo-text.svg';
 import theme from './theme/theme';
+import { API_BASE_URL, SOCKET_URL } from './config/api';
+
+const socket = io(SOCKET_URL);
 
 function App() {
   const [members, setMembers] = useState({});
   const [error, setError] = useState(null);
   const [teamMembers, setTeamMembers] = useState([]);
   const [viewMode, setViewMode] = useState('columns');
-  const [socket, setSocket] = useState(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState({ stage: 'Ready', progress: 0 });
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -81,8 +65,6 @@ function App() {
       console.log('Disconnected from server');
       setError('Lost connection to server. Attempting to reconnect...');
     });
-
-    setSocket(newSocket);
 
     return () => {
       if (newSocket) {
