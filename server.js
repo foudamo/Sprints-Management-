@@ -30,6 +30,10 @@ app.use(express.json());
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'client/build')));
   app.get('*', (req, res) => {
+    // Skip API routes
+    if (req.url.startsWith('/api/') || req.url.startsWith('/socket.io/')) {
+      return;
+    }
     res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
   });
 }
