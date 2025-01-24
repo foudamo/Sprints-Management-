@@ -23,10 +23,22 @@ node_modules/
 # AWS
 .aws/
 *.pem
+
+# Terraform
+**/terraform/*
 terraform.tfstate
 terraform.tfstate.backup
-.terraform/
 .terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
 
 # Logs
 logs
