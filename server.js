@@ -1,40 +1,214 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
+const AWS = require('aws-sdk');
 
 const app = express();
 const server = http.createServer(app);
 
+// Add request logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  console.log('Headers:', req.headers);
+  console.log('Query:', req.query);
+  console.log('Body:', req.body);
+  next();
+});
+
 const isDev = process.env.NODE_ENV !== 'production';
-const origin = isDev ? 'http://localhost:3000' : process.env.VERCEL_URL || 'https://sprints-management.vercel.app';
+const origin = isDev ? 'http://localhost:3000' : true; // Allow any origin in production
 
 const io = new Server(server, {
   cors: {
     origin: origin,
     methods: ["GET", "POST"],
-    credentials: true
+    credentials: true,
+    transports: ['websocket'],
+    allowEIO3: true,
+    pingTimeout: 60000,
+    pingInterval: 25000,
+    path: '/socket.io/',
+    serveClient: true,
+    cookie: false,
+    connectTimeout: 45000,
+    maxHttpBufferSize: 1e8,
+    allowUpgrades: true,
+    wsEngine: 'ws',
+    handlePreflightRequest: (req, res) => {
+      const headers = {
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, Sec-WebSocket-Key, Sec-WebSocket-Protocol, Sec-WebSocket-Version",
+        "Access-Control-Allow-Origin": origin,
+        "Access-Control-Allow-Credentials": true,
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Max-Age": 86400
+      };
+      res.writeHead(200, headers);
+      res.end();
+    },
+    perMessageDeflate: {
+      threshold: 2048,
+      zlibInflateOptions: {
+        chunkSize: 10 * 1024
+      },
+      zlibDeflateOptions: {
+        level: 6,
+        memLevel: 8
+      },
+      clientNoContextTakeover: true,
+      serverNoContextTakeover: true,
+      serverMaxWindowBits: 10,
+      concurrencyLimit: 10
+    }
   }
+});
+
+// Add middleware to log connection attempts
+io.use((socket, next) => {
+  console.log('Socket connection attempt:', {
+    id: socket.id,
+    handshake: {
+      headers: socket.handshake.headers,
+      query: socket.handshake.query,
+      auth: socket.handshake.auth
+    },
+    transport: socket.conn.transport.name
+  });
+  next();
+});
+
+// Add server-wide event listeners
+io.engine.on('connection_error', (err) => {
+  console.error('Socket.IO connection error:', {
+    code: err.code,
+    message: err.message,
+    context: err.context,
+    stack: err.stack
+  });
 });
 
 app.use(cors({
   origin: origin,
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
 }));
 
 app.use(express.json());
 
+// Add CORS preflight handler
+app.options('/socket.io/*', cors());
+
+// Health check endpoint - must be before any other routes
+app.get('/health', (req, res) => {
+  console.log('Health check endpoint hit');
+  res.status(200).send('Healthy');
+});
+
+// Debug endpoint
+app.get('/debug', (req, res) => {
+  console.log('Debug endpoint hit');
+  const debugInfo = {
+    env: process.env.NODE_ENV,
+    port: process.env.PORT,
+    hostname: require('os').hostname(),
+    uptime: process.uptime(),
+    socketConnections: io.engine.clientsCount,
+    aws: {
+      region: AWS.config.region,
+      credentials: AWS.config.credentials ? 'present' : 'missing'
+    }
+  };
+  
+  console.log('Debug info:', debugInfo);
+  res.json(debugInfo);
+});
+
+// DynamoDB test endpoint
+app.get('/debug/dynamodb', async (req, res) => {
+  try {
+    console.log('Testing DynamoDB connections...');
+    const results = await Promise.all([
+      dynamodb.scan({ TableName: 'sprints-team-members', Limit: 1 }).promise(),
+      dynamodb.scan({ TableName: 'sprints-tasks', Limit: 1 }).promise(),
+      dynamodb.scan({ TableName: 'sprints-meeting-notes', Limit: 1 }).promise()
+    ]);
+    
+    res.json({
+      success: true,
+      teamMembers: results[0],
+      tasks: results[1],
+      meetingNotes: results[2]
+    });
+  } catch (error) {
+    console.error('DynamoDB test failed:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      code: error.code
+    });
+  }
+});
+
+// Socket.IO test endpoint
+app.get('/debug/socket', (req, res) => {
+  res.send(`
+    <html>
+      <body>
+        <h2>Socket.IO Test</h2>
+        <div id="status">Connecting...</div>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+          const socket = io();
+          const status = document.getElementById('status');
+          
+          socket.on('connect', () => {
+            status.innerHTML = 'Connected! Socket ID: ' + socket.id;
+          });
+          
+          socket.on('connect_error', (error) => {
+            status.innerHTML = 'Connection Error: ' + error;
+          });
+          
+          socket.on('error', (error) => {
+            status.innerHTML = 'Socket Error: ' + error;
+          });
+        </script>
+      </body>
+    </html>
+  `);
+});
+
 // Serve static files from the React app in production
 if (process.env.NODE_ENV === 'production') {
+  // API and diagnostic routes first
+  app.get(['/api/*', '/socket.io/*', '/health', '/debug'], (req, res, next) => {
+    return next();
+  });
+  
   app.use(express.static(path.join(__dirname, 'client/build')));
+  
+  // All other routes - serve React app
   app.get('*', (req, res) => {
-    // Skip API routes
-    if (req.url.startsWith('/api/') || req.url.startsWith('/socket.io/')) {
-      return;
+    console.log('Serving React app for path:', req.url);
+    try {
+      const indexPath = path.join(__dirname, 'client/build', 'index.html');
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        console.log('index.html not found at:', indexPath);
+        res.status(200).send('Application is running but client files are not available');
+      }
+    } catch (error) {
+      console.error('Error serving index.html:', error);
+      res.status(200).send('Application is running');
     }
-    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+  });
+} else {
+  // In development, send a message for root route
+  app.get('/', (req, res) => {
+    res.send('Server running in development mode');
   });
 }
 
@@ -99,87 +273,110 @@ const DEFAULT_TEAM_MEMBERS = [
   }
 ];
 
-// Path to store team members data
-const TEAM_MEMBERS_PATH = path.join(__dirname, 'data', 'team_members.json');
+// Configure AWS with explicit credentials
+AWS.config.update({
+  region: process.env.AWS_REGION,
+  credentials: new AWS.Credentials({
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+  })
+});
 
-// Path for storing current tasks
-const TASKS_PATH = path.join(__dirname, 'data', 'current_tasks.json');
+// Test AWS configuration
+console.log('AWS Configuration:', {
+  region: AWS.config.region,
+  hasCredentials: !!AWS.config.credentials,
+  credentialsExpiration: AWS.config.credentials ? AWS.config.credentials.expireTime : null
+});
 
-// Path for storing original texts
-const ORIGINAL_TEXTS_PATH = path.join(__dirname, 'data', 'original_texts.json');
+const dynamodb = new AWS.DynamoDB.DocumentClient();
 
-// Load team members from file or use defaults
-function loadTeamMembers() {
+// Test DynamoDB connection on startup
+async function testDynamoDBConnection() {
   try {
-    if (fs.existsSync(TEAM_MEMBERS_PATH)) {
-      const data = fs.readFileSync(TEAM_MEMBERS_PATH, 'utf8');
-      return JSON.parse(data);
-    }
+    console.log('Testing DynamoDB connection...');
+    const result = await dynamodb.scan({
+      TableName: 'sprints-team-members',
+      Limit: 1
+    }).promise();
+    console.log('DynamoDB connection successful:', result);
   } catch (error) {
-    console.error('Error loading team members:', error);
+    console.error('DynamoDB connection error:', error);
   }
-  return DEFAULT_TEAM_MEMBERS;
 }
 
-// Save team members to file
-function saveTeamMembers(members) {
+testDynamoDBConnection();
+
+// Load team members from DynamoDB or use defaults
+async function loadTeamMembers() {
   try {
-    fs.writeFileSync(TEAM_MEMBERS_PATH, JSON.stringify(members, null, 2));
+    console.log('Loading team members from DynamoDB...');
+    const result = await dynamodb.scan({
+      TableName: 'sprints-team-members'
+    }).promise();
+    
+    console.log('Team members loaded:', result.Items);
+    if (result.Items.length > 0) {
+      return result.Items;
+    }
+    
+    console.log('No team members found, saving defaults...');
+    // If no data exists, save defaults
+    await saveTeamMembers(DEFAULT_TEAM_MEMBERS);
+    return DEFAULT_TEAM_MEMBERS;
+  } catch (error) {
+    console.error('Error loading team members:', error);
+    console.error('Error details:', error.code, error.message);
+    return DEFAULT_TEAM_MEMBERS;
+  }
+}
+
+// Save team members to DynamoDB
+async function saveTeamMembers(members) {
+  try {
+    for (const member of members) {
+      await dynamodb.put({
+        TableName: 'sprints-team-members',
+        Item: member
+      }).promise();
+    }
   } catch (error) {
     console.error('Error saving team members:', error);
   }
 }
 
-// Get current tasks from file
-function getCurrentTasks() {
+// Get current tasks from DynamoDB
+async function getCurrentTasks() {
   try {
-    if (fs.existsSync(TASKS_PATH)) {
-      const data = fs.readFileSync(TASKS_PATH, 'utf8');
-      const tasks = JSON.parse(data);
-      
-      // Initialize empty tasks object if needed
-      const result = {};
-      teamMembers.forEach(member => {
-        result[member.name] = {
-          name: member.name,
-          tasks: tasks[member.name]?.tasks || []
-        };
-      });
-      return result;
-    }
+    const result = await dynamodb.scan({
+      TableName: 'sprints-tasks'
+    }).promise();
+    
+    return result.Items.reduce((acc, item) => {
+      acc[item.memberName] = {
+        name: item.memberName,
+        tasks: item.tasks || []
+      };
+      return acc;
+    }, {});
   } catch (error) {
     console.error('Error loading tasks:', error);
+    return {};
   }
-  
-  // Return initialized empty tasks object
-  const result = {};
-  teamMembers.forEach(member => {
-    result[member.name] = {
-      name: member.name,
-      tasks: []
-    };
-  });
-  return result;
 }
 
-// Save tasks to file
-function saveTasks(tasks) {
+// Save tasks to DynamoDB
+async function saveTasks(tasks) {
   try {
-    // Ensure tasks object has proper structure
-    const formattedTasks = {};
-    Object.keys(tasks).forEach(memberName => {
-      formattedTasks[memberName] = {
-        name: memberName,
-        tasks: tasks[memberName].tasks.map(task => ({
-          text: task.text,
-          dueDate: task.dueDate,
-          assignedTo: task.assignedTo || memberName,
-          timestamp: task.timestamp
-        }))
-      };
-    });
-    
-    fs.writeFileSync(TASKS_PATH, JSON.stringify(formattedTasks, null, 2));
+    for (const [memberName, data] of Object.entries(tasks)) {
+      await dynamodb.put({
+        TableName: 'sprints-tasks',
+        Item: {
+          memberName,
+          tasks: data.tasks || []
+        }
+      }).promise();
+    }
   } catch (error) {
     console.error('Error saving tasks:', error);
   }
@@ -680,14 +877,77 @@ app.post('/api/demo', async (req, res) => {
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
-  console.log('Client connected');
+  console.log('Client connected:', socket.id);
+  console.log('Connection details:', {
+    id: socket.id,
+    transport: socket.conn.transport.name,
+    remoteAddress: socket.handshake.address,
+    headers: socket.handshake.headers,
+    timestamp: new Date().toISOString()
+  });
+
+  // Send initial data on connection
+  socket.emit('connection-established', { id: socket.id });
+
+  // Handle reconnection
+  socket.on('reconnect', () => {
+    console.log('Client reconnected:', socket.id);
+  });
+
+  socket.on('connect_error', (error) => {
+    console.error('Socket connection error:', {
+      id: socket.id,
+      error: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  socket.on('connect_timeout', () => {
+    console.error('Socket connection timeout:', {
+      id: socket.id,
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  socket.on('disconnect', (reason) => {
+    console.log('Client disconnected:', {
+      id: socket.id,
+      reason,
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  socket.on('error', (error) => {
+    console.error('Socket error:', {
+      id: socket.id,
+      error: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString()
+    });
+  });
+
+  // Log socket events for debugging
+  socket.onAny((eventName, ...args) => {
+    console.log(`Socket event ${eventName} from ${socket.id}:`, JSON.stringify(args, null, 2));
+  });
 
   // Handle get team members request
-  socket.on('get-team-members', () => {
-    socket.emit('team-members', teamMembers);
-    // Also send current tasks when team members are requested
-    const currentTasks = getCurrentTasks();
-    socket.emit('parsing-complete', currentTasks);
+  socket.on('get-team-members', async () => {
+    console.log(`get-team-members requested by ${socket.id}`);
+    try {
+      const members = await loadTeamMembers();
+      console.log('Sending team members:', members);
+      socket.emit('team-members', members);
+      
+      // Also send current tasks when team members are requested
+      const currentTasks = await getCurrentTasks();
+      console.log('Sending current tasks:', currentTasks);
+      socket.emit('parsing-complete', currentTasks);
+    } catch (error) {
+      console.error('Error in get-team-members:', error);
+      socket.emit('error', { message: 'Failed to load team members' });
+    }
   });
 
   // Handle text parsing request
@@ -724,10 +984,11 @@ io.on('connection', (socket) => {
   });
 
   // Handle task updates
-  socket.on('update-tasks', (tasks) => {
+  socket.on('update-tasks', async (tasks) => {
     try {
       console.log('Saving updated tasks:', tasks);
-      saveTasks(tasks);
+      await saveTasks(tasks);
+      io.emit('tasks-updated', tasks);
     } catch (error) {
       console.error('Error saving tasks:', error);
     }
@@ -768,13 +1029,30 @@ io.on('connection', (socket) => {
       socket.emit('report-generated', { error: error.message });
     }
   });
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
-  });
 });
 
-const PORT = process.env.PORT || 3001;
-server.listen(PORT, () => {
+// Add explicit upgrade handling
+server.on('upgrade', (request, socket, head) => {
+  console.log('WebSocket upgrade request:', {
+    url: request.url,
+    headers: request.headers,
+    method: request.method,
+    timestamp: new Date().toISOString()
+  });
+
+  // Validate WebSocket headers
+  if (!request.headers['sec-websocket-key']) {
+    console.error('Missing Sec-WebSocket-Key header');
+    socket.write('HTTP/1.1 400 Bad Request\r\n\r\n');
+    socket.destroy();
+    return;
+  }
+
+  // Handle WebSocket upgrade
+  io.engine.handleUpgrade(request, socket, head);
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });

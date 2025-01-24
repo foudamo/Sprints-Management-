@@ -1,0 +1,20 @@
+{
+  "family": "your-task-def",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "containerDefinitions": [
+    {
+      "name": "your-task-def",
+      "image": "your-account-id.dkr.ecr.your-region.amazonaws.com/your-app-name:latest",
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true
+    }
+  ]
+} 

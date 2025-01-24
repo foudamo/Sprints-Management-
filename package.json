@@ -1,14 +1,14 @@
 {
-  "name": "sprints-management",
+  "name": "sprints-app",
   "version": "1.0.0",
   "private": true,
   "description": "Task management board using Fireflies API",
-  "main": "server.js",
+  "main": "app.js",
   "workspaces": [
     "client"
   ],
   "scripts": {
-    "start": "node server.js",
+    "start": "node app.js",
     "dev": "nodemon server.js",
     "build": "cd client && npm install && CI=false DISABLE_ESLINT_PLUGIN=true npm run build",
     "client": "cd client && npm start",
@@ -24,7 +24,8 @@
     "express": "^4.18.2",
     "mammoth": "^1.8.0",
     "rtf-parser": "^1.3.3",
-    "socket.io": "^4.7.2"
+    "socket.io": "^4.7.2",
+    "aws-sdk": "^2.1040.0"
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
