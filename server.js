@@ -4,6 +4,9 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
+const mongoose = require('mongoose');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const server = http.createServer(app);
@@ -40,66 +43,25 @@ process.on('unhandledRejection', (error) => {
   console.error('Unhandled Rejection:', error);
 });
 
+// Path for storing team members
+const TEAM_MEMBERS_PATH = path.join(__dirname, 'team_members.json');
+const TASKS_PATH = path.join(__dirname, 'tasks.json');
+
 // Default team members if no saved data exists
 const DEFAULT_TEAM_MEMBERS = [
-  {
-    name: 'Grayson Bass',
-    variants: ['grayson', 'grayson bass']
-  },
-  {
-    name: 'Zac Waite',
-    variants: ['zac', 'zac waite', 'zach']
-  },
-  {
-    name: 'Salman Naqvi',
-    variants: ['salman', 'salman naqvi']
-  },
-  {
-    name: 'Anmoll',
-    variants: ['anmol', 'anmoll']
-  },
-  {
-    name: 'Dipto Biswas',
-    variants: ['dipto', 'dipto biswas']
-  },
-  {
-    name: 'Ishu Trivedi',
-    variants: ['ishu', 'ishu trivedi']
-  },
-  {
-    name: 'Guruprasanna Rajukannan Suresh',
-    variants: ['guru', 'guruprasanna', 'guruprasanna rajukannan suresh']
-  },
-  {
-    name: 'Alexa',
-    variants: ['alexa']
-  },
-  {
-    name: 'Connie',
-    variants: ['connie']
-  },
-  {
-    name: 'Linh',
-    variants: ['linh']
-  },
-  {
-    name: 'Hargun',
-    variants: ['hargun']
-  },
-  {
-    name: 'Mohamed Fouda',
-    variants: ['mohamed', 'mohamed fouda', 'fouda']
-  }
+  { id: '1', name: 'Grayson Bass', nicknames: ['grayson', 'grayson bass'] },
+  { id: '2', name: 'Zac Waite', nicknames: ['zac', 'zac waite'] },
+  { id: '3', name: 'Salman Naqvi', nicknames: ['salman', 'salman naqvi'] },
+  { id: '4', name: 'Anmoll', nicknames: ['anmol'] },
+  { id: '5', name: 'Dipto Biswas', nicknames: ['dipto', 'dipto biswas'] },
+  { id: '6', name: 'Ishu Trivedi', nicknames: ['ishu', 'ishu trivedi'] },
+  { id: '7', name: 'Guruprasanna Rajukannan Suresh', nicknames: ['guru'] },
+  { id: '8', name: 'Alexa', nicknames: ['alexa'] },
+  { id: '9', name: 'Connie', nicknames: ['connie'] },
+  { id: '10', name: 'Linh', nicknames: ['linh'] },
+  { id: '11', name: 'Hargun', nicknames: ['hargun'] },
+  { id: '12', name: 'Mohamed Fouda', nicknames: ['mohamed', 'fouda'] }
 ];
-
-// Path to store team members data
-const TEAM_MEMBERS_PATH = path.join(__dirname, 'team_members.json');
-
-// Path for storing current tasks
-const TASKS_PATH = path.join(__dirname, 'current_tasks.json');
-
-// Path for storing original texts
-const ORIGINAL_TEXTS_PATH = path.join(__dirname, 'original_texts.json');
 
 // Load team members from file or use defaults
 function loadTeamMembers() {
@@ -128,77 +90,20 @@ function getCurrentTasks() {
   try {
     if (fs.existsSync(TASKS_PATH)) {
       const data = fs.readFileSync(TASKS_PATH, 'utf8');
-      const tasks = JSON.parse(data);
-      
-      // Initialize empty tasks object if needed
-      const result = {};
-      teamMembers.forEach(member => {
-        result[member.name] = {
-          name: member.name,
-          tasks: tasks[member.name]?.tasks || []
-        };
-      });
-      return result;
+      return JSON.parse(data);
     }
   } catch (error) {
     console.error('Error loading tasks:', error);
   }
-  
-  // Return initialized empty tasks object
-  const result = {};
-  teamMembers.forEach(member => {
-    result[member.name] = {
-      name: member.name,
-      tasks: []
-    };
-  });
-  return result;
+  return [];
 }
 
 // Save tasks to file
 function saveTasks(tasks) {
   try {
-    // Ensure tasks object has proper structure
-    const formattedTasks = {};
-    Object.keys(tasks).forEach(memberName => {
-      formattedTasks[memberName] = {
-        name: memberName,
-        tasks: tasks[memberName].tasks.map(task => ({
-          text: task.text,
-          dueDate: task.dueDate,
-          assignedTo: task.assignedTo || memberName,
-          timestamp: task.timestamp
-        }))
-      };
-    });
-    
-    fs.writeFileSync(TASKS_PATH, JSON.stringify(formattedTasks, null, 2));
+    fs.writeFileSync(TASKS_PATH, JSON.stringify(tasks, null, 2));
   } catch (error) {
     console.error('Error saving tasks:', error);
-  }
-}
-
-// Get original texts from file
-function getOriginalTexts() {
-  try {
-    if (fs.existsSync(ORIGINAL_TEXTS_PATH)) {
-      const data = fs.readFileSync(ORIGINAL_TEXTS_PATH, 'utf8');
-      return JSON.parse(data);
-    }
-  } catch (error) {
-    console.error('Error loading original texts:', error);
-  }
-  return {};
-}
-
-// Save original text to file
-function saveOriginalText(date, text) {
-  try {
-    const texts = getOriginalTexts();
-    texts[date] = text;
-    fs.writeFileSync(ORIGINAL_TEXTS_PATH, JSON.stringify(texts, null, 2));
-  } catch (error) {
-    console.error('Error saving original text:', error);
   }
 }
 
@@ -211,7 +116,7 @@ function normalizeAndMatchName(text) {
   
   // First try to match the exact line
   for (const member of teamMembers) {
-    if (member.variants.some(variant => normalizedText.includes(variant))) {
+    if (member.nicknames.some(variant => normalizedText.includes(variant))) {
       return member.name;
     }
   }
@@ -228,7 +133,7 @@ function normalizeAndMatchName(text) {
     if (match) {
       const extractedName = match[1].toLowerCase().trim();
       for (const member of teamMembers) {
-        if (member.variants.some(variant => extractedName.includes(variant))) {
+        if (member.nicknames.some(variant => extractedName.includes(variant))) {
           return member.name;
         }
       }
@@ -238,114 +143,49 @@ function normalizeAndMatchName(text) {
   return null;
 }
 
-// Function to parse text directly
-function parseText(data, socket) {
+// Parse text into tasks
+async function parseText(data, socket) {
   try {
-    socket.emit('parsing-progress', { stage: 'Starting text parsing...', progress: 10 });
-
-    // Get existing tasks
-    const existingTasks = getCurrentTasks();
+    const text = data.text;
+    const tasks = [];
+    const lines = text.split('\n');
     
-    // Initialize the result object with existing tasks for the current date
-    const result = {};
-    Object.keys(existingTasks).forEach(memberName => {
-      result[memberName] = {
-        name: memberName,
-        tasks: existingTasks[memberName].tasks.filter(task => {
-          const taskDate = new Date(task.dueDate);
-          const selectedDate = new Date(data.selectedDate);
-          return taskDate.getTime() !== selectedDate.getTime();
-        })
-      };
-    });
-
-    // Split the text into lines and find the "Action items" section
-    const lines = data.text.split('\n');
-    let actionItemsIndex = -1;
-
-    socket.emit('parsing-progress', { stage: 'Looking for Action Items section...', progress: 20 });
-
-    // Find the "Action items" section
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].toLowerCase().includes('action items')) {
-        actionItemsIndex = i;
-        break;
-      }
-    }
-
-    // If we didn't find the Action Items section, return existing tasks
-    if (actionItemsIndex === -1) {
-      socket.emit('parsing-progress', { stage: 'No Action Items section found', progress: 100 });
-      return result;
-    }
-
-    socket.emit('parsing-progress', { stage: 'Found Action Items section, processing tasks...', progress: 30 });
-
-    // Process lines after "Action items"
-    const startIndex = actionItemsIndex + 1;
+    let currentDate = null;
     let currentMember = null;
-
-    for (let i = startIndex; i < lines.length; i++) {
-      const line = lines[i].trim();
+    
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      if (!trimmedLine) continue;
       
-      // Skip empty lines
-      if (!line) continue;
-      
-      // Check if we've reached the end of the action items section
-      if (line.toLowerCase().includes('next steps') || 
-          line.toLowerCase().includes('next meeting') ||
-          line.toLowerCase().includes('discussion items')) {
-        break;
-      }
-
-      // First check if this line is a member name
-      let foundMember = null;
+      // Try to find team member mention
       for (const member of teamMembers) {
-        const variations = [member.name, ...(member.variants || [])];
-        for (const variation of variations) {
-          if (line.toLowerCase() === variation.toLowerCase()) {
-            foundMember = member;
-            break;
-          }
+        const memberNameLower = member.name.toLowerCase();
+        const nicknamesLower = member.nicknames.map(n => n.toLowerCase());
+        
+        if (
+          trimmedLine.toLowerCase().includes(memberNameLower) ||
+          nicknamesLower.some(nickname => trimmedLine.toLowerCase().includes(nickname))
+        ) {
+          currentMember = member.name;
+          break;
         }
-        if (foundMember) break;
       }
-
-      if (foundMember) {
-        // This line is a member name, set as current member
-        currentMember = foundMember;
-        continue;
-      }
-
-      // If we have a current member and this isn't a member name, it's their task
-      if (currentMember && line) {
-        // Extract timestamp if present (HH:MM) or (H:MM)
-        const timestampMatch = line.match(/\((\d{1,2}:\d{2})\)/);
-        const taskText = line.replace(/\(\d{1,2}:\d{2}\)/, '').trim();
-
-        if (taskText) {
-          const task = {
-            text: taskText,
-            dueDate: data.selectedDate,
-            assignedTo: currentMember.name,
-            timestamp: timestampMatch ? timestampMatch[1] : null
-          };
-          
-          // Initialize member's tasks array if needed
-          if (!result[currentMember.name]) {
-            result[currentMember.name] = {
-              name: currentMember.name,
-              tasks: []
-            };
-          }
-          result[currentMember.name].tasks.push(task);
+      
+      // If we found a member and there's a task description
+      if (currentMember && trimmedLine.includes(':')) {
+        const taskDescription = trimmedLine.split(':')[1].trim();
+        if (taskDescription) {
+          tasks.push({
+            id: Date.now().toString() + tasks.length,
+            description: taskDescription,
+            assignee: currentMember,
+            date: new Date().toISOString().split('T')[0]
+          });
         }
       }
     }
-
-    socket.emit('parsing-progress', { stage: 'Finalizing results...', progress: 90 });
     
-    return result;
+    return tasks;
   } catch (error) {
     console.error('Error parsing text:', error);
     throw error;
@@ -461,7 +301,7 @@ async function parseDocx(socket) {
   }
 }
 
-// Helper function to generate natural language summary of tasks
+// Function to generate natural language summary of tasks
 function generateTaskSummary(tasks) {
   if (!tasks || tasks.length === 0) {
     return "No tasks scheduled for this period.";
@@ -470,7 +310,7 @@ function generateTaskSummary(tasks) {
   // Group tasks by common themes/keywords
   const taskThemes = {};
   tasks.forEach(task => {
-    const text = task.text.toLowerCase();
+    const text = task.description.toLowerCase();
     
     // Common task categories
     const categories = {
@@ -522,13 +362,13 @@ function generateTaskSummary(tasks) {
 
   // Add key highlights
   const highlights = tasks.filter(task => 
-    task.text.toLowerCase().includes('important') || 
-    task.text.toLowerCase().includes('priority') ||
-    task.text.toLowerCase().includes('urgent')
+    task.description.toLowerCase().includes('important') || 
+    task.description.toLowerCase().includes('priority') ||
+    task.description.toLowerCase().includes('urgent')
   );
   
   if (highlights.length > 0) {
-    summary += ` Key priorities include: ${highlights.map(t => t.text).join('; ')}.`;
+    summary += ` Key priorities include: ${highlights.map(t => t.description).join('; ')}.`;
   }
 
   return summary;
@@ -541,21 +381,21 @@ function generateReport(tasks, startDate, endDate, memberName = null) {
   
   // Filter tasks within date range
   const filteredTasks = tasks.filter(task => {
-    const taskDate = new Date(task.dueDate || task.date);
+    const taskDate = new Date(task.date);
     return taskDate >= start && taskDate <= end;
   });
 
   // Sort tasks by date
   filteredTasks.sort((a, b) => {
-    const dateA = new Date(a.dueDate || a.date);
-    const dateB = new Date(b.dueDate || b.date);
+    const dateA = new Date(a.date);
+    const dateB = new Date(b.date);
     return dateA - dateB;
   });
 
   // Group tasks by member
   const tasksByMember = {};
   filteredTasks.forEach(task => {
-    const member = task.assignedTo;
+    const member = task.assignee;
     if (!tasksByMember[member]) {
       tasksByMember[member] = [];
     }
@@ -579,7 +419,7 @@ function generateReport(tasks, startDate, endDate, memberName = null) {
       content += `${memberName} has no tasks scheduled during this period.\n`;
     } else {
       content += `${memberName} has ${tasks.length} task${tasks.length === 1 ? '' : 's'} scheduled`;
-      const uniqueDates = new Set(tasks.map(task => new Date(task.dueDate || task.date).toLocaleDateString()));
+      const uniqueDates = new Set(tasks.map(task => new Date(task.date).toLocaleDateString()));
       content += ` across ${uniqueDates.size} day${uniqueDates.size === 1 ? '' : 's'}.\n\n`;
       content += `Task Overview:\n${generateTaskSummary(tasks)}\n`;
     }
@@ -595,7 +435,7 @@ function generateReport(tasks, startDate, endDate, memberName = null) {
     content += 'Member Summaries:\n';
     activeMembers.sort().forEach(member => {
       const memberTasks = tasksByMember[member];
-      const uniqueDates = new Set(memberTasks.map(task => new Date(task.dueDate || task.date).toLocaleDateString()));
+      const uniqueDates = new Set(memberTasks.map(task => new Date(task.date).toLocaleDateString()));
       content += `\n${member}:\n`;
       content += `- Workload: ${memberTasks.length} task${memberTasks.length === 1 ? '' : 's'} across ${uniqueDates.size} day${uniqueDates.size === 1 ? '' : 's'}\n`;
       content += `- Overview: ${generateTaskSummary(memberTasks)}\n`;
@@ -610,7 +450,7 @@ function generateReport(tasks, startDate, endDate, memberName = null) {
     const memberTasks = tasksByMember[memberName] || [];
     const tasksByDate = {};
     memberTasks.forEach(task => {
-      const date = new Date(task.dueDate || task.date).toLocaleDateString();
+      const date = new Date(task.date).toLocaleDateString();
       if (!tasksByDate[date]) tasksByDate[date] = [];
       tasksByDate[date].push(task);
     });
@@ -620,14 +460,14 @@ function generateReport(tasks, startDate, endDate, memberName = null) {
     ).forEach(([date, tasks]) => {
       content += `\n${date}:\n`;
       tasks.forEach(task => {
-        content += `- ${task.text}\n`;
+        content += `- ${task.description}\n`;
       });
     });
   } else {
     // Team-wide report grouped by date
     const tasksByDate = {};
     filteredTasks.forEach(task => {
-      const date = new Date(task.dueDate || task.date).toLocaleDateString();
+      const date = new Date(task.date).toLocaleDateString();
       if (!tasksByDate[date]) tasksByDate[date] = [];
       tasksByDate[date].push(task);
     });
@@ -637,7 +477,7 @@ function generateReport(tasks, startDate, endDate, memberName = null) {
     ).forEach(([date, tasks]) => {
       content += `\n${date}:\n`;
       tasks.forEach(task => {
-        content += `- [${task.assignedTo}] ${task.text}\n`;
+        content += `- [${task.assignee}] ${task.description}\n`;
       });
     });
   }
@@ -675,90 +515,94 @@ app.post('/api/demo', async (req, res) => {
 io.on('connection', (socket) => {
   console.log('Client connected');
 
-  // Handle get team members request
-  socket.on('get-team-members', () => {
-    socket.emit('team-members', teamMembers);
-    // Also send current tasks when team members are requested
-    const currentTasks = getCurrentTasks();
-    socket.emit('parsing-complete', currentTasks);
+  // Send initial data
+  socket.emit('tasksUpdated', getCurrentTasks());
+  socket.emit('teamMembersUpdated', teamMembers);
+
+  // Handle team member operations
+  socket.on('getTeamMembers', () => {
+    socket.emit('teamMembersUpdated', teamMembers);
   });
 
-  // Handle text parsing request
-  socket.on('parse-text', async (data) => {
+  socket.on('addTeamMember', (data) => {
+    const newMember = {
+      id: Date.now().toString(),
+      name: data.name,
+      nicknames: data.nicknames
+    };
+    teamMembers.push(newMember);
+    saveTeamMembers(teamMembers);
+    io.emit('teamMembersUpdated', teamMembers);
+  });
+
+  socket.on('updateTeamMember', (data) => {
+    const index = teamMembers.findIndex(m => m.id === data.id);
+    if (index !== -1) {
+      teamMembers[index] = { ...teamMembers[index], ...data };
+      saveTeamMembers(teamMembers);
+      io.emit('teamMembersUpdated', teamMembers);
+    }
+  });
+
+  socket.on('deleteTeamMember', (data) => {
+    teamMembers = teamMembers.filter(m => m.id !== data.id);
+    saveTeamMembers(teamMembers);
+    io.emit('teamMembersUpdated', teamMembers);
+  });
+
+  // Handle task operations
+  socket.on('addTask', (data) => {
+    const tasks = getCurrentTasks();
+    const newTask = {
+      id: Date.now().toString(),
+      description: data.description,
+      assignee: data.assignee,
+      date: data.date
+    };
+    tasks.push(newTask);
+    saveTasks(tasks);
+    io.emit('tasksUpdated', tasks);
+  });
+
+  socket.on('updateTask', (data) => {
+    const tasks = getCurrentTasks();
+    const index = tasks.findIndex(t => t.id === data.id);
+    if (index !== -1) {
+      tasks[index] = { ...tasks[index], ...data };
+      saveTasks(tasks);
+      io.emit('tasksUpdated', tasks);
+    }
+  });
+
+  socket.on('deleteTask', (data) => {
+    let tasks = getCurrentTasks();
+    tasks = tasks.filter(t => t.id !== data.id);
+    saveTasks(tasks);
+    io.emit('tasksUpdated', tasks);
+  });
+
+  // Handle text parsing
+  socket.on('parseText', async (data) => {
     try {
-      console.log('Received text to parse:', data);
       const parsedTasks = await parseText(data, socket);
-      console.log('Parsed tasks:', parsedTasks);
-      
-      // Save the original text
-      saveOriginalText(data.selectedDate, data.text);
-      
-      // Save the tasks
       saveTasks(parsedTasks);
-      
-      // Send the parsed tasks back to the client
-      socket.emit('parsing-complete', parsedTasks);
+      io.emit('tasksUpdated', parsedTasks);
+      socket.emit('textParsed', { success: true });
     } catch (error) {
       console.error('Error parsing text:', error);
-      socket.emit('parsing-error', { message: error.message });
+      socket.emit('textParsed', { success: false, error: error.message });
     }
   });
 
-  // Handle get original text request
-  socket.on('get-original-text', (date) => {
+  // Handle report generation
+  socket.on('generateReport', (data) => {
     try {
-      const texts = getOriginalTexts();
-      const text = texts[date] || '';
-      socket.emit('original-text', { date, text });
-    } catch (error) {
-      console.error('Error getting original text:', error);
-      socket.emit('original-text-error', { message: error.message });
-    }
-  });
-
-  // Handle task updates
-  socket.on('update-tasks', (tasks) => {
-    try {
-      console.log('Saving updated tasks:', tasks);
-      saveTasks(tasks);
-    } catch (error) {
-      console.error('Error saving tasks:', error);
-    }
-  });
-
-  // Handle report export request
-  socket.on('export-report', ({ memberId, startDate, endDate }) => {
-    try {
-      console.log('Generating report:', { memberId, startDate, endDate });
-      
-      const tasksObj = getCurrentTasks();
-      let tasksToReport = [];
-      
-      if (memberId === 'all') {
-        // Collect all tasks from all members
-        Object.values(tasksObj).forEach(memberData => {
-          if (memberData.tasks && Array.isArray(memberData.tasks)) {
-            tasksToReport.push(...memberData.tasks.map(task => ({
-              ...task,
-              assignedTo: memberData.name
-            })));
-          }
-        });
-      } else {
-        // Get tasks for specific member
-        const memberName = teamMembers[memberId]?.name;
-        const memberTasks = tasksObj[memberName]?.tasks || [];
-        tasksToReport = memberTasks.map(task => ({
-          ...task,
-          assignedTo: memberName
-        }));
-      }
-      
-      const content = generateReport(tasksToReport, startDate, endDate, memberId === 'all' ? null : teamMembers[memberId]?.name);
-      socket.emit('report-generated', { content });
+      const tasks = getCurrentTasks();
+      const content = generateReport(tasks, data.startDate, data.endDate, data.teamMember);
+      socket.emit('reportGenerated', { content });
     } catch (error) {
       console.error('Error generating report:', error);
-      socket.emit('report-generated', { error: error.message });
+      socket.emit('reportGenerated', { error: error.message });
     }
   });
 
@@ -778,3 +622,24 @@ const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+// Consider adding database integration
+mongoose.connect(process.env.MONGODB_URI);
+
+// Add proper error middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ 
+    success: false,
+    error: process.env.NODE_ENV === 'production' 
+      ? 'Internal server error' 
+      : err.message 
+  });
+});
+
+// Add rate limiting and security headers
+app.use(helmet());
+app.use(rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per window
+}));

@@ -3,10 +3,14 @@ node_modules/
 /client/node_modules
 /.pnp
 .pnp.js
+.npm/
+.yarn/
+yarn.lock
 
 # Production build
 /build/
 /client/build
+*.map
 
 # Environment variables
 .env
@@ -30,6 +34,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 *.log
+/tmp
+debug.log
 
 # IDE and Editor files
 .idea/
@@ -41,19 +47,28 @@ yarn-error.log*
 *.swp
 *.swo
 nppBackup/
+*.sublime-*
+*.code-workspace
 
 # OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 .direnv/
+
+# Local development
+*.local
+.env*.local
 
 # LLM Models and related files
 *.gguf
 *.gguf.json
-*.bin
-models/
-**/models/
-llm/
-**/llm/
+models/*.bin
+models/*.json
 
 # Build artifacts
 *.o

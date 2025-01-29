@@ -1,0 +1,914 @@
+[
+  {
+    "id": "17381559387813",
+    "description": "Working on signup process and Alluro piece",
+    "assignee": "Connie",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "17381559387814",
+    "description": "Continuing work on Sprint bot and UN Admin side",
+    "assignee": "Dipto Biswas",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "17381559387815",
+    "description": "Changed database schema for multiple domains, working on lambda functions and idea to product",
+    "assignee": "Guruprasanna Rajukannan Suresh",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "17381559387816",
+    "description": "Finishing backend changes for listing city laws, potentially working on frontend using cursor",
+    "assignee": "Ishu Trivedi",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "17381559387817",
+    "description": "Making smaller chatbot changes, open to larger tasks",
+    "assignee": "Zac Waite",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "17381559387818",
+    "description": "Preparing for Cinchy meeting, seeking clarity on priorities",
+    "assignee": "Salman Naqvi",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "17381559387819",
+    "description": "Exploring project management with AI or Firefly, continuing cursor project",
+    "assignee": "Mohamed Fouda",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "173815593878110",
+    "description": "24 - 11",
+    "assignee": "Mohamed Fouda",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "173815593878111",
+    "description": "Working on query for 'what is Kali page', Swinchi University plan, and cursor prototype",
+    "assignee": "Anmoll",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "173815593878213",
+    "description": "56)",
+    "assignee": "Salman Naqvi",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "173815593878214",
+    "description": "24)",
+    "assignee": "Linh",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "173815593878216",
+    "description": "07)",
+    "assignee": "Dipto Biswas",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "173815593878217",
+    "description": "07)",
+    "assignee": "Dipto Biswas",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "173815593878219",
+    "description": "32)",
+    "assignee": "Ishu Trivedi",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "173815593878220",
+    "description": "32)",
+    "assignee": "Ishu Trivedi",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "173815593878221",
+    "description": "55)",
+    "assignee": "Ishu Trivedi",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "173815593878222",
+    "description": "55)",
+    "assignee": "Ishu Trivedi",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "173815593878425",
+    "description": "12)",
+    "assignee": "Salman Naqvi",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "173815593878426",
+    "description": "24)",
+    "assignee": "Mohamed Fouda",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "173815593878427",
+    "description": "03)",
+    "assignee": "Anmoll",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "173815593878428",
+    "description": "03)",
+    "assignee": "Anmoll",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "173815593878429",
+    "description": "03)",
+    "assignee": "Anmoll",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "1738155990434",
+    "description": "testing",
+    "assignee": "Grayson Bass",
+    "date": "2025-01-28"
+  },
+  {
+    "id": "1738156010048",
+    "description": "testinggggg ",
+    "assignee": "Salman Naqvi",
+    "date": "2025-01-26"
+  },
+  {
+    "id": "1738156539210",
+    "description": "tests tt",
+    "assignee": "Salman Naqvi",
+    "date": "2025-01-16"
+  },
+  {
+    "id": "1738156550044",
+    "description": "eefefef ",
+    "assignee": "Anmoll",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567480",
+    "description": "Notes",
+    "assignee": "Connie",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567482",
+    "description": "️ Meeting Kickoff and Updates (00:08 - 02:45)",
+    "assignee": "Connie",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567483",
+    "description": "Grayson plans to organize a meeting with the UN Team next week",
+    "assignee": "Connie",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567483",
+    "description": "Project Priorities and Plans (02:45 - 05:04)",
+    "assignee": "Anmoll",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567484",
+    "description": "Grayson outlined priorities for the next phase:",
+    "assignee": "Anmoll",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567484",
+    "description": "Stakeholder feedback from the city",
+    "assignee": "Anmoll",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567485",
+    "description": "Building next phase of tools",
+    "assignee": "Anmoll",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567485",
+    "description": "Working on partnerships",
+    "assignee": "Anmoll",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567486",
+    "description": "Setting up the innovation pipeline",
+    "assignee": "Anmoll",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567486",
+    "description": "Platform tweaks, including UN admin panel and signup piece",
+    "assignee": "Anmoll",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567486",
+    "description": "Everyone should work on the 'cursor piece' with something to show by next Friday",
+    "assignee": "Anmoll",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567487",
+    "description": "Priority should be on the signup process",
+    "assignee": "Anmoll",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567488",
+    "description": "‍ Team Updates and Tasks (05:04 - 09:19)",
+    "assignee": "Anmoll",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567488",
+    "description": "Dipto: Continuing work on Sprint bot and UN Admin side",
+    "assignee": "Connie",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567488",
+    "description": "Guruprasanna: Changed database schema for multiple domains, working on lambda functions and idea to product",
+    "assignee": "Connie",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567489",
+    "description": "Ishu: Finishing backend changes for listing city laws, potentially working on frontend using cursor",
+    "assignee": "Connie",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567489",
+    "description": "Zac: Making smaller chatbot changes, open to larger tasks",
+    "assignee": "Connie",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567489",
+    "description": "Salman: Preparing for Cinchy meeting, seeking clarity on priorities",
+    "assignee": "Connie",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567489",
+    "description": "Mohamed: Exploring project management with AI or Firefly, continuing cursor project",
+    "assignee": "Connie",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567490",
+    "description": "Final Tasks and Follow-ups (09:24 - 11:29)",
+    "assignee": "Connie",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567490",
+    "description": "Zac to review and implement design changes from the spreadsheet",
+    "assignee": "Linh",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567490",
+    "description": "Action items",
+    "assignee": "Linh",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567490",
+    "description": "Organize a meeting with the UN Team next week (00:59)",
+    "assignee": "Grayson Bass",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567491",
+    "description": "Meet with Salman to discuss priorities (08:56)",
+    "assignee": "Grayson Bass",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567493",
+    "description": "Work on signup process and Alluro piece (04:24)",
+    "assignee": "Linh",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567493",
+    "description": "Meet with Grayson to discuss expectations for signup process (05:21)",
+    "assignee": "Linh",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567494",
+    "description": "Continue working on Sprint bot (06:07)",
+    "assignee": "Dipto Biswas",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567494",
+    "description": "Complete managed content for UN Admin side (06:07)",
+    "assignee": "Dipto Biswas",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567494",
+    "description": "Connect with Zach to finish managed cities and manage users for UN admin (06:07)",
+    "assignee": "Dipto Biswas",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567495",
+    "description": "Work with Ishu on lambda functions for multiple domains (06:32)",
+    "assignee": "Guruprasanna Rajukannan Suresh",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567495",
+    "description": "Work on idea to product (06:32)",
+    "assignee": "Guruprasanna Rajukannan Suresh",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567495",
+    "description": "Finish backend changes for listing city laws (06:55)",
+    "assignee": "Ishu Trivedi",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567495",
+    "description": "Try to use cursor for frontend of listing city laws (06:55)",
+    "assignee": "Ishu Trivedi",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567496",
+    "description": "Make smaller chatbot changes from GitHub issues (07:23)",
+    "assignee": "Zac Waite",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567496",
+    "description": "Review and implement design changes from the Excel spreadsheet (10:59)",
+    "assignee": "Zac Waite",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567497",
+    "description": "Prepare for Cinchy meeting on Wednesday (08:12)",
+    "assignee": "Salman Naqvi",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567497",
+    "description": "Explore project management with AI or Firefly (09:24)",
+    "assignee": "Mohamed Fouda",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567497",
+    "description": "Work on query for 'what is Kali page' as top priority (10:03)",
+    "assignee": "Anmoll",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567497",
+    "description": "Continue on Swinchi University plan (10:03)",
+    "assignee": "Anmoll",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156567498",
+    "description": "Work on cursor prototype (10:03)",
+    "assignee": "Anmoll",
+    "date": "2025-01-10"
+  },
+  {
+    "id": "1738156801306",
+    "description": "rereee ",
+    "assignee": "Anmoll",
+    "date": "2025-01-11"
+  },
+  {
+    "id": "1738156982833",
+    "description": "Notes",
+    "assignee": "Connie",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982835",
+    "description": "️ Meeting Kickoff and Updates (00:08 - 02:45)",
+    "assignee": "Connie",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982835",
+    "description": "Grayson plans to organize a meeting with the UN Team next week",
+    "assignee": "Connie",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982836",
+    "description": "Project Priorities and Plans (02:45 - 05:04)",
+    "assignee": "Anmoll",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982837",
+    "description": "Grayson outlined priorities for the next phase:",
+    "assignee": "Anmoll",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982838",
+    "description": "Stakeholder feedback from the city",
+    "assignee": "Anmoll",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982839",
+    "description": "Building next phase of tools",
+    "assignee": "Anmoll",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982840",
+    "description": "Working on partnerships",
+    "assignee": "Anmoll",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982840",
+    "description": "Setting up the innovation pipeline",
+    "assignee": "Anmoll",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982841",
+    "description": "Platform tweaks, including UN admin panel and signup piece",
+    "assignee": "Anmoll",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982841",
+    "description": "Everyone should work on the 'cursor piece' with something to show by next Friday",
+    "assignee": "Anmoll",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982841",
+    "description": "Priority should be on the signup process",
+    "assignee": "Anmoll",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982842",
+    "description": "‍ Team Updates and Tasks (05:04 - 09:19)",
+    "assignee": "Anmoll",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982842",
+    "description": "Dipto: Continuing work on Sprint bot and UN Admin side",
+    "assignee": "Connie",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982842",
+    "description": "Guruprasanna: Changed database schema for multiple domains, working on lambda functions and idea to product",
+    "assignee": "Connie",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982843",
+    "description": "Ishu: Finishing backend changes for listing city laws, potentially working on frontend using cursor",
+    "assignee": "Connie",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982843",
+    "description": "Zac: Making smaller chatbot changes, open to larger tasks",
+    "assignee": "Connie",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982843",
+    "description": "Salman: Preparing for Cinchy meeting, seeking clarity on priorities",
+    "assignee": "Connie",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982844",
+    "description": "Mohamed: Exploring project management with AI or Firefly, continuing cursor project",
+    "assignee": "Connie",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982844",
+    "description": "Final Tasks and Follow-ups (09:24 - 11:29)",
+    "assignee": "Connie",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982844",
+    "description": "Zac to review and implement design changes from the spreadsheet",
+    "assignee": "Linh",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982845",
+    "description": "Action items",
+    "assignee": "Linh",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982845",
+    "description": "Organize a meeting with the UN Team next week (00:59)",
+    "assignee": "Grayson Bass",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982846",
+    "description": "Meet with Salman to discuss priorities (08:56)",
+    "assignee": "Grayson Bass",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982846",
+    "description": "Work on signup process and Alluro piece (04:24)",
+    "assignee": "Linh",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982846",
+    "description": "Meet with Grayson to discuss expectations for signup process (05:21)",
+    "assignee": "Linh",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982847",
+    "description": "Continue working on Sprint bot (06:07)",
+    "assignee": "Dipto Biswas",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982847",
+    "description": "Complete managed content for UN Admin side (06:07)",
+    "assignee": "Dipto Biswas",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982848",
+    "description": "Connect with Zach to finish managed cities and manage users for UN admin (06:07)",
+    "assignee": "Dipto Biswas",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982848",
+    "description": "Work with Ishu on lambda functions for multiple domains (06:32)",
+    "assignee": "Guruprasanna Rajukannan Suresh",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982848",
+    "description": "Work on idea to product (06:32)",
+    "assignee": "Guruprasanna Rajukannan Suresh",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982849",
+    "description": "Finish backend changes for listing city laws (06:55)",
+    "assignee": "Ishu Trivedi",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982849",
+    "description": "Try to use cursor for frontend of listing city laws (06:55)",
+    "assignee": "Ishu Trivedi",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982850",
+    "description": "Make smaller chatbot changes from GitHub issues (07:23)",
+    "assignee": "Zac Waite",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982850",
+    "description": "Review and implement design changes from the Excel spreadsheet (10:59)",
+    "assignee": "Zac Waite",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982850",
+    "description": "Prepare for Cinchy meeting on Wednesday (08:12)",
+    "assignee": "Salman Naqvi",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982851",
+    "description": "Explore project management with AI or Firefly (09:24)",
+    "assignee": "Mohamed Fouda",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982851",
+    "description": "Work on query for 'what is Kali page' as top priority (10:03)",
+    "assignee": "Anmoll",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982851",
+    "description": "Continue on Swinchi University plan (10:03)",
+    "assignee": "Anmoll",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738156982852",
+    "description": "Work on cursor prototype (10:03)",
+    "assignee": "Anmoll",
+    "date": "2025-01-08"
+  },
+  {
+    "id": "1738158899288",
+    "description": "testtt ",
+    "assignee": "Grayson Bass",
+    "date": "2025-01-31"
+  },
+  {
+    "id": "1738159555736",
+    "description": "Grayson announced plans to meet with the UN Team next week and clarified the importance of addressing stakeholder feedback, developing tools, and refining the signup process",
+    "assignee": "Grayson Bass",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "1738159555738",
+    "description": "Team members provided updates on their current work, with Linh and Connie focusing on the signup process, Dipto advancing the Sprint bot, and others tackling various aspects such as database adjustments and AI project management",
+    "assignee": "Dipto Biswas",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "1738159555739",
+    "description": "Notes ️ Meeting Kickoff and Updates (00:08 - 02:45) Grayson plans to organize a meeting with the UN Team next week Anmoll sent an email to Grayson with questions, which Grayson affirmed  Project Priorities and Plans (02:45 - 05:04) Grayson outlined priorities for the next phase: Stakeholder feedback from the city Building next phase of tools Working on partnerships Setting up the innovation pipeline Platform tweaks, including UN admin panel and signup piece Everyone should work on the 'cursor piece' with something to show by next Friday Priority should be on the signup process ‍ Team Updates and Tasks (05:04 - 09:19) Linh and Connie: Working on signup process and Alluro piece Dipto: Continuing work on Sprint bot and UN Admin side Guruprasanna: Changed database schema for multiple domains, working on lambda functions and idea to product Ishu: Finishing backend changes for listing city laws, potentially working on frontend using cursor Zac: Making smaller chatbot changes, open to larger tasks Salman: Preparing for Cinchy meeting, seeking clarity on priorities Mohamed: Exploring project management with AI or Firefly, continuing cursor project  Final Tasks and Follow-ups (09:24 - 11:29) Anmoll: Working on query for 'what is Kali page', Swinchi University plan, and cursor prototype Linh reminded chatbot team about design changes on Excel sheet Zac to review and implement design changes from the spreadsheet Action items Grayson Bass Organize a meeting with the UN Team next week (00:59) Meet with Salman to discuss priorities (08:56) Linh Work on signup process and Alluro piece (04:24) Meet with Grayson to discuss expectations for signup process (05:21) Dipto Biswas Continue working on Sprint bot (06:07) Complete managed content for UN Admin side (06:07) Connect with Zach to finish managed cities and manage users for UN admin (06:07) Guruprasanna Rajukannan Suresh Work with Ishu on lambda functions for multiple domains (06:32) Work on idea to product (06:32) Ishu Trivedi Finish backend changes for listing city laws (06:55) Try to use cursor for frontend of listing city laws (06:55) Zac Waite Make smaller chatbot changes from GitHub issues (07:23) Review and implement design changes from the Excel spreadsheet (10:59) Salman Naqvi Prepare for Cinchy meeting on Wednesday (08:12) Mohamed Fouda Explore project management with AI or Firefly (09:24) Anmoll Work on query for 'what is Kali page' as top priority (10:03) Continue on Swinchi University plan (10:03) Work on cursor prototype (10:03)",
+    "assignee": "Grayson Bass",
+    "date": "2025-01-29"
+  },
+  {
+    "id": "1738159578882",
+    "description": "Grayson announced plans to meet with the UN Team next week and clarified the importance of addressing stakeholder feedback, developing tools, and refining the signup process",
+    "assignee": "Grayson Bass",
+    "date": "2025-02-08"
+  },
+  {
+    "id": "1738159578883",
+    "description": "Team members provided updates on their current work, with Linh and Connie focusing on the signup process, Dipto advancing the Sprint bot, and others tackling various aspects such as database adjustments and AI project management",
+    "assignee": "Dipto Biswas",
+    "date": "2025-02-08"
+  },
+  {
+    "id": "1738159578884",
+    "description": "Notes ️ Meeting Kickoff and Updates (00:08 - 02:45) Grayson plans to organize a meeting with the UN Team next week Anmoll sent an email to Grayson with questions, which Grayson affirmed  Project Priorities and Plans (02:45 - 05:04) Grayson outlined priorities for the next phase: Stakeholder feedback from the city Building next phase of tools Working on partnerships Setting up the innovation pipeline Platform tweaks, including UN admin panel and signup piece Everyone should work on the 'cursor piece' with something to show by next Friday Priority should be on the signup process ‍ Team Updates and Tasks (05:04 - 09:19) Linh and Connie: Working on signup process and Alluro piece Dipto: Continuing work on Sprint bot and UN Admin side Guruprasanna: Changed database schema for multiple domains, working on lambda functions and idea to product Ishu: Finishing backend changes for listing city laws, potentially working on frontend using cursor Zac: Making smaller chatbot changes, open to larger tasks Salman: Preparing for Cinchy meeting, seeking clarity on priorities Mohamed: Exploring project management with AI or Firefly, continuing cursor project  Final Tasks and Follow-ups (09:24 - 11:29) Anmoll: Working on query for 'what is Kali page', Swinchi University plan, and cursor prototype Linh reminded chatbot team about design changes on Excel sheet Zac to review and implement design changes from the spreadsheet Action items Grayson Bass Organize a meeting with the UN Team next week (00:59) Meet with Salman to discuss priorities (08:56) Linh Work on signup process and Alluro piece (04:24) Meet with Grayson to discuss expectations for signup process (05:21) Dipto Biswas Continue working on Sprint bot (06:07) Complete managed content for UN Admin side (06:07) Connect with Zach to finish managed cities and manage users for UN admin (06:07) Guruprasanna Rajukannan Suresh Work with Ishu on lambda functions for multiple domains (06:32) Work on idea to product (06:32) Ishu Trivedi Finish backend changes for listing city laws (06:55) Try to use cursor for frontend of listing city laws (06:55) Zac Waite Make smaller chatbot changes from GitHub issues (07:23) Review and implement design changes from the Excel spreadsheet (10:59) Salman Naqvi Prepare for Cinchy meeting on Wednesday (08:12) Mohamed Fouda Explore project management with AI or Firefly (09:24) Anmoll Work on query for 'what is Kali page' as top priority (10:03) Continue on Swinchi University plan (10:03) Work on cursor prototype (10:03)",
+    "assignee": "Grayson Bass",
+    "date": "2025-02-08"
+  },
+  {
+    "id": "1738159604060",
+    "description": "test",
+    "assignee": "Zac Waite",
+    "date": "2025-02-08"
+  },
+  {
+    "id": "1738159891049",
+    "description": "Stakeholder feedback from the city Building next phase of tools Working on partnerships Setting up the innovation pipeline Platform tweaks, including UN admin panel",
+    "assignee": "Grayson Bass",
+    "date": "2025-01-27"
+  },
+  {
+    "id": "1738159891049",
+    "description": "and signup piece Everyone should work on the 'cursor piece' with something to show by next Friday Priority should be on the signup process ‍ Team Updates",
+    "assignee": "Grayson Bass",
+    "date": "2025-01-27"
+  },
+  {
+    "id": "1738159891050",
+    "description": "and Tasks",
+    "assignee": "Grayson Bass",
+    "date": "2025-01-27"
+  },
+  {
+    "id": "1738159891051",
+    "description": "Final Tasks",
+    "assignee": "Mohamed Fouda",
+    "date": "2025-01-27"
+  },
+  {
+    "id": "1738159891051",
+    "description": "and Follow-ups",
+    "assignee": "Mohamed Fouda",
+    "date": "2025-01-27"
+  },
+  {
+    "id": "1738159891053",
+    "description": "Organize a meeting with the UN Team next week",
+    "assignee": "Grayson Bass",
+    "date": "2025-01-27"
+  },
+  {
+    "id": "1738159891054",
+    "description": "Work on signup process",
+    "assignee": "Linh",
+    "date": "2025-01-27"
+  },
+  {
+    "id": "1738159891054",
+    "description": "and Alluro piece",
+    "assignee": "Linh",
+    "date": "2025-01-27"
+  },
+  {
+    "id": "1738159891055",
+    "description": "Continue working on Sprint bot Complete managed content for UN Admin side Connect with Zach to finish managed cities",
+    "assignee": "Dipto Biswas",
+    "date": "2025-01-27"
+  },
+  {
+    "id": "1738159891055",
+    "description": "and manage users for UN admin",
+    "assignee": "Dipto Biswas",
+    "date": "2025-01-27"
+  },
+  {
+    "id": "1738159891056",
+    "description": "Work on idea to product",
+    "assignee": "Ishu Trivedi",
+    "date": "2025-01-27"
+  },
+  {
+    "id": "1738159891056",
+    "description": "Finish backend changes for listing city laws Try to use cursor for frontend of listing city laws",
+    "assignee": "Ishu Trivedi",
+    "date": "2025-01-27"
+  },
+  {
+    "id": "1738159891057",
+    "description": "Make smaller chatbot changes from GitHub issues Review",
+    "assignee": "Zac Waite",
+    "date": "2025-01-27"
+  },
+  {
+    "id": "1738159891057",
+    "description": "and implement design changes from the Excel spreadsheet",
+    "assignee": "Zac Waite",
+    "date": "2025-01-27"
+  },
+  {
+    "id": "1738159891058",
+    "description": "Prepare for Cinchy meeting on Wednesday",
+    "assignee": "Salman Naqvi",
+    "date": "2025-01-27"
+  },
+  {
+    "id": "1738159891059",
+    "description": "Explore project management with AI or Firefly",
+    "assignee": "Mohamed Fouda",
+    "date": "2025-01-27"
+  },
+  {
+    "id": "1738159891060",
+    "description": "Work on query for 'what is Kali page' as top priority Continue on Swinchi University plan Work on cursor prototype",
+    "assignee": "Anmoll",
+    "date": "2025-01-27"
+  },
+  {
+    "id": "1738160269738",
+    "description": "Project Priorities",
+    "assignee": "Grayson Bass",
+    "date": "2025-01-30"
+  },
+  {
+    "id": "1738160269739",
+    "description": "and Plans",
+    "assignee": "Grayson Bass",
+    "date": "2025-01-30"
+  },
+  {
+    "id": "1738160269740",
+    "description": "Stakeholder feedback from the city Building next phase of tools Working on partnerships Setting up the innovation pipeline Platform tweaks, including UN admin panel",
+    "assignee": "Grayson Bass",
+    "date": "2025-01-30"
+  },
+  {
+    "id": "1738160269741",
+    "description": "and signup piece Everyone should work on the 'cursor piece' with something to show by next Friday Priority should be on the signup process ‍ Team Updates",
+    "assignee": "Grayson Bass",
+    "date": "2025-01-30"
+  },
+  {
+    "id": "1738160269741",
+    "description": "and Tasks",
+    "assignee": "Grayson Bass",
+    "date": "2025-01-30"
+  },
+  {
+    "id": "1738160269742",
+    "description": "Final Tasks",
+    "assignee": "Mohamed Fouda",
+    "date": "2025-01-30"
+  },
+  {
+    "id": "1738160269743",
+    "description": "and Follow-ups",
+    "assignee": "Mohamed Fouda",
+    "date": "2025-01-30"
+  },
+  {
+    "id": "1738160269743",
+    "description": "Action items",
+    "assignee": "Zac Waite",
+    "date": "2025-01-30"
+  },
+  {
+    "id": "1738160269744",
+    "description": "Organize a meeting with the UN Team next week",
+    "assignee": "Grayson Bass",
+    "date": "2025-01-30"
+  },
+  {
+    "id": "1738160269745",
+    "description": "Work on signup process",
+    "assignee": "Linh",
+    "date": "2025-01-30"
+  },
+  {
+    "id": "1738160269745",
+    "description": "and Alluro piece",
+    "assignee": "Linh",
+    "date": "2025-01-30"
+  },
+  {
+    "id": "1738160269746",
+    "description": "Continue working on Sprint bot Complete managed content for UN Admin side Connect with Zach to finish managed cities",
+    "assignee": "Dipto Biswas",
+    "date": "2025-01-30"
+  },
+  {
+    "id": "1738160269747",
+    "description": "and manage users for UN admin",
+    "assignee": "Dipto Biswas",
+    "date": "2025-01-30"
+  },
+  {
+    "id": "1738160269748",
+    "description": "Work on idea to product",
+    "assignee": "Ishu Trivedi",
+    "date": "2025-01-30"
+  },
+  {
+    "id": "1738160269749",
+    "description": "Finish backend changes for listing city laws Try to use cursor for frontend of listing city laws",
+    "assignee": "Ishu Trivedi",
+    "date": "2025-01-30"
+  },
+  {
+    "id": "1738160269750",
+    "description": "Make smaller chatbot changes from GitHub issues Review",
+    "assignee": "Zac Waite",
+    "date": "2025-01-30"
+  },
+  {
+    "id": "1738160269750",
+    "description": "and implement design changes from the Excel spreadsheet",
+    "assignee": "Zac Waite",
+    "date": "2025-01-30"
+  },
+  {
+    "id": "1738160269751",
+    "description": "Prepare for Cinchy meeting on Wednesday",
+    "assignee": "Salman Naqvi",
+    "date": "2025-01-30"
+  },
+  {
+    "id": "1738160269752",
+    "description": "Explore project management with AI or Firefly",
+    "assignee": "Mohamed Fouda",
+    "date": "2025-01-30"
+  },
+  {
+    "id": "1738160269752",
+    "description": "Work on query for 'what is Kali page' as top priority Continue on Swinchi University plan Work on cursor prototype",
+    "assignee": "Anmoll",
+    "date": "2025-01-30"
+  }
+]
