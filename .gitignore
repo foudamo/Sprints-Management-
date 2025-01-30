@@ -69,6 +69,8 @@ Thumbs.db
 *.gguf.json
 models/*.bin
 models/*.json
+/llama.cpp/
+/models/
 
 # Build artifacts
 *.o
@@ -95,3 +97,15 @@ build*/
 
 # Tags
 tags
+
+# Add to existing .gitignore
+node_modules/
+build/
+.env
+*.log
+.DS_Store
+
+# Add these new entries
+/data/
+/backup/
+/client/build

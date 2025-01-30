@@ -15,8 +15,6 @@
     "dev:full": "concurrently \"npm run dev\" \"npm run client\""
   },
   "dependencies": {
-    "ajv": "^8.12.0",
-    "ajv-keywords": "^5.1.0",
     "axios": "^1.6.2",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
