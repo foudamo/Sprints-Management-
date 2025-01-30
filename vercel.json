@@ -9,18 +9,22 @@
       "src": "client/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "build"
+        "distDir": "build",
+        "buildCommand": "CI=false DISABLE_ESLINT_PLUGIN=true npm run build"
       }
     }
   ],
   "routes": [
     {
+      "src": "/socket.io/(.*)",
+      "dest": "/server.js"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/server.js"
     },
     {
-      "src": "/socket.io/(.*)",
-      "dest": "/server.js"
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",

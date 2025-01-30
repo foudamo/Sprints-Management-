@@ -65,6 +65,9 @@ Thumbs.db
 .env*.local
 
 # LLM Models and related files
+llama.cpp/
+models/
+.windsurfrules
 *.gguf
 *.gguf.json
 models/*.bin
