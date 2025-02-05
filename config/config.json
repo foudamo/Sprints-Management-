@@ -1,0 +1,30 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": "BzfZEbT6M1rYNP7ouy0e",
+    "database": "your-database-name",
+    "host": "sprints-mohamed-fouda.cj24eucoaq0n.us-east-1.rds.amazonaws.com",
+    "port": 5432,
+    "dialect": "postgres",
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
+  },
+  "test": {
+    "username": "root",
+    "password": null,
+    "database": "database_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": null,
+    "database": "database_production",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+}

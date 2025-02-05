@@ -39,10 +39,18 @@ const Calendar = ({ tasks, socket, onDayClick }) => {
   };
 
   const getDayTasks = (date) => {
+    if (!Array.isArray(tasks)) return [];
+    
     return tasks.filter(task => {
-      if (!task.date) return false;
-      const taskDate = startOfDay(parseISO(task.date));
-      return format(taskDate, 'yyyy-MM-dd') === format(startOfDay(date), 'yyyy-MM-dd');
+      try {
+        if (!task || !task.dueDate) return false;
+        const taskDate = startOfDay(parseISO(task.dueDate));
+        const compareDate = startOfDay(date);
+        return taskDate.getTime() === compareDate.getTime();
+      } catch (error) {
+        console.warn('Error processing task date:', error, task);
+        return false;
+      }
     });
   };
 
@@ -50,10 +58,19 @@ const Calendar = ({ tasks, socket, onDayClick }) => {
   const groupTasksByAssignee = (tasks) => {
     const grouped = {};
     tasks.forEach(task => {
-      if (!grouped[task.assignee]) {
-        grouped[task.assignee] = [];
+      if (!task || !task.assignee) return;
+      
+      // Get assignee name from either the assignee object or direct property
+      const assigneeName = task.assignee?.name || 
+                          task.assignee?.fullName || 
+                          (typeof task.assignee === 'string' ? task.assignee : null);
+      
+      if (!assigneeName) return;
+      
+      if (!grouped[assigneeName]) {
+        grouped[assigneeName] = [];
       }
-      grouped[task.assignee].push(task);
+      grouped[assigneeName].push(task);
     });
     return grouped;
   };
@@ -67,20 +84,49 @@ const Calendar = ({ tasks, socket, onDayClick }) => {
         gap: 1
       }}>
         <Button 
-          variant="outlined"
+          variant="contained"
           size="small"
           onClick={handleToday}
           sx={{
             textTransform: 'none',
-            borderColor: 'rgba(0, 0, 0, 0.12)',
-            color: 'text.primary',
+            backgroundColor: '#e8f5e9',
+            color: '#1b5e20',
+            border: '1px solid #c8e6c9',
             '&:hover': {
-              borderColor: 'rgba(0, 0, 0, 0.24)',
-              backgroundColor: 'rgba(0, 0, 0, 0.04)'
-            }
+              backgroundColor: '#c8e6c9',
+            },
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            minWidth: 'auto',
+            px: 1.5,
+            py: 0.5
           }}
         >
-          TODAY
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography 
+              variant="body2" 
+              component="span"
+              sx={{ 
+                fontWeight: 'bold',
+                fontSize: '0.875rem'
+              }}
+            >
+              TODAY
+            </Typography>
+            <Typography 
+              variant="body2" 
+              component="span"
+              sx={{ 
+                fontSize: '0.75rem',
+                opacity: 0.8,
+                borderLeft: '1px solid #a5d6a7',
+                pl: 1
+              }}
+            >
+              {format(new Date(), 'EEE, MMM d')}
+            </Typography>
+          </Box>
         </Button>
         <IconButton size="small" onClick={handlePrevMonth}>
           <ChevronLeftIcon />
@@ -130,41 +176,62 @@ const Calendar = ({ tasks, socket, onDayClick }) => {
               onClick={() => onDayClick(startOfDay(day))}
               sx={{
                 position: 'relative',
-                height: '120px', // Fixed height
+                height: '120px',
                 p: 1,
                 borderRight: '1px solid rgba(0, 0, 0, 0.12)',
                 borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
-                backgroundColor: isTodays ? '#e8f5e9' : 'white',
+                backgroundColor: isTodays 
+                  ? '#e8f5e9' 
+                  : totalTasks > 0 
+                    ? '#f8f4ff'  
+                    : 'white',
                 opacity: isCurrentMonth ? 1 : 0.5,
                 cursor: 'pointer',
+                transition: 'all 0.2s ease',
                 '&:hover': {
-                  backgroundColor: isTodays ? '#c8e6c9' : '#f5f5f5',
+                  backgroundColor: isTodays 
+                    ? '#c8e6c9' 
+                    : totalTasks > 0 
+                      ? '#f0e6ff'  
+                      : '#f5f5f5',
+                  transform: totalTasks > 0 ? 'scale(1.02)' : 'none',
                 },
                 display: 'flex',
                 flexDirection: 'column',
-                overflow: 'hidden' // Hide overflow
+                overflow: 'hidden',
+                boxShadow: totalTasks > 0 ? '0 1px 3px rgba(103, 80, 164, 0.1)' : 'none',
+                borderLeft: totalTasks > 0 ? '3px solid #6750A4' : 'none',
               }}
             >
               <Typography 
                 variant="body2"
                 sx={{
-                  fontWeight: isTodays ? 'bold' : 'normal',
-                  color: !isCurrentMonth ? 'text.disabled' : 'text.primary',
-                  mb: 0.5
+                  fontWeight: isTodays || totalTasks > 0 ? 'bold' : 'normal',
+                  color: !isCurrentMonth 
+                    ? 'text.disabled' 
+                    : totalTasks > 0 
+                      ? '#6750A4'  
+                      : 'text.primary',
+                  mb: 0.5,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
                 }}
               >
-                {format(day, 'd')}
+                <span>{format(day, 'd')}</span>
                 {totalTasks > 0 && (
                   <Typography
                     component="span"
                     sx={{
-                      ml: 1,
                       fontSize: '0.75rem',
-                      color: '#6750A4',
-                      backgroundColor: '#f3e8fd',
-                      px: 0.5,
+                      color: '#fff',
+                      backgroundColor: '#6750A4',
+                      px: 0.8,
                       py: 0.25,
-                      borderRadius: '10px',
+                      borderRadius: '12px',
+                      fontWeight: 'bold',
+                      minWidth: '20px',
+                      textAlign: 'center'
                     }}
                   >
                     {totalTasks}
@@ -190,7 +257,7 @@ const Calendar = ({ tasks, socket, onDayClick }) => {
                       {displayTasks.map((task, index) => (
                         <Tooltip 
                           key={task.id} 
-                          title={`${task.assignee}: ${task.description}`}
+                          title={`${assignee}: ${task.title || task.description}`}
                           arrow
                         >
                           <Box
@@ -203,19 +270,20 @@ const Calendar = ({ tasks, socket, onDayClick }) => {
                               whiteSpace: 'nowrap',
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
-                              mb: 0.5
+                              cursor: 'pointer'
                             }}
                           >
-                            {task.description}
+                            {task.title || task.description}
                           </Box>
                         </Tooltip>
                       ))}
                       {remainingTasks > 0 && (
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            color: '#6750A4',
-                            fontSize: '0.75rem'
+                        <Typography 
+                          variant="caption" 
+                          sx={{ 
+                            color: 'text.secondary',
+                            display: 'block',
+                            pl: 0.5 
                           }}
                         >
                           +{remainingTasks} more from {assignee}
@@ -224,17 +292,16 @@ const Calendar = ({ tasks, socket, onDayClick }) => {
                     </Box>
                   );
                 })}
-                
                 {Object.keys(groupedTasks).length > 2 && (
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color: '#6750A4',
-                      fontSize: '0.75rem',
-                      mt: 'auto'
+                  <Typography 
+                    variant="caption" 
+                    sx={{ 
+                      color: 'text.secondary',
+                      display: 'block',
+                      pl: 0.5 
                     }}
                   >
-                    +{Object.keys(groupedTasks).length - 2} more assignees
+                    +{Object.keys(groupedTasks).length - 2} more members
                   </Typography>
                 )}
               </Box>

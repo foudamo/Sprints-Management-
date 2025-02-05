@@ -27,7 +27,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { io } from 'socket.io-client';
-import { format, startOfDay, endOfDay, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import Calendar from './components/Calendar';
 import DayView from './components/DayView';
 import TeamMembers from './components/TeamMembers';
@@ -40,7 +40,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import GroupIcon from '@mui/icons-material/Group';
 
 const BACKEND_URL = process.env.NODE_ENV === 'production' 
-  ? process.env.REACT_APP_BACKEND_URL 
+  ? 'https://your-production-url.com' 
   : 'http://localhost:3001';
 
 function App() {
@@ -49,79 +49,141 @@ function App() {
   const [members, setMembers] = useState([]);
   const [showDayView, setShowDayView] = useState(false);
   const [showTeamMembers, setShowTeamMembers] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [showParseDialog, setShowParseDialog] = useState(false);
-  const [parseText, setParseText] = useState('');
-  const [parseDateValue, setParseDateValue] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(new Date());  
   const [showReportDialog, setShowReportDialog] = useState(false);
-  const [selectedMembers, setSelectedMembers] = useState([]);
-  const [dateRange, setDateRange] = useState([null, null]);
+  const [connectionError, setConnectionError] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [memberInput, setMemberInput] = useState('');
 
   useEffect(() => {
-    const newSocket = io(BACKEND_URL);
-    console.log('Initializing socket connection to:', BACKEND_URL);
-    setSocket(newSocket);
+    // First try to fetch members via HTTP
+    fetch('http://localhost:3001/api/members')
+      .then(response => response.json())
+      .then(data => {
+        console.log('Fetched members via HTTP:', data);
+        setMembers(data);
+      })
+      .catch(error => console.error('Error fetching members:', error));
+
+    // Then fetch tasks via HTTP
+    fetch('http://localhost:3001/api/tasks')
+      .then(response => response.json())
+      .then(data => {
+        console.log('Fetched tasks via HTTP:', data);
+        setTasks(data);
+      })
+      .catch(error => console.error('Error fetching tasks:', error));
+
+    // Then set up WebSocket connection
+    console.log('Initializing socket connection...');
+    const newSocket = io('http://localhost:3001', {
+      transports: ['polling', 'websocket'],
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      reconnectionAttempts: 5,
+      timeout: 20000,
+      withCredentials: false,
+      forceNew: true,
+      autoConnect: true
+    });
 
     newSocket.on('connect', () => {
-      console.log('Connected to server');
-      newSocket.emit('getTasks');
-      newSocket.emit('getTeamMembers');
+      console.log('Connected to WebSocket server with ID:', newSocket.id);
+      setIsConnected(true);
+      setConnectionError(null);
+      setSocket(newSocket);
+
+      // Fetch latest data on reconnect
+      newSocket.emit('request_initial_data');
     });
 
     newSocket.on('connect_error', (error) => {
-      console.error('Socket connection error:', error);
+      console.error('WebSocket connection error:', error.message);
+      setConnectionError(error.message);
+      setIsConnected(false);
     });
 
-    newSocket.on('error', (error) => {
-      console.error('Socket error:', error);
+    newSocket.on('disconnect', (reason) => {
+      console.log('Disconnected from WebSocket server:', reason);
+      setIsConnected(false);
+      if (reason === 'io server disconnect') {
+        // Server initiated disconnect, try to reconnect
+        newSocket.connect();
+      }
     });
 
-    newSocket.on('tasksUpdated', (updatedTasks) => {
-      console.log('Received tasks:', updatedTasks);
-      setTasks(updatedTasks);
+    newSocket.on('members', (data) => {
+      console.log('Received members via WebSocket:', data);
+      if (Array.isArray(data)) {
+        setMembers(data);
+      }
     });
 
-    newSocket.on('teamMembersUpdated', (updatedMembers) => {
-      console.log('Received members:', updatedMembers);
-      setMembers(updatedMembers);
+    newSocket.on('tasks', (data) => {
+      console.log('Received tasks via WebSocket:', data);
+      if (Array.isArray(data)) {
+        setTasks(data);
+      }
     });
 
-    newSocket.on('taskAdded', (task) => {
+    newSocket.on('task_added', (task) => {
       console.log('Task added:', task);
-      setTasks(prevTasks => [...prevTasks, task]);
+      setTasks(prevTasks => {
+        // Remove any existing task with the same ID
+        const filteredTasks = prevTasks.filter(t => t.id !== task.id);
+        // Add the new task
+        return [...filteredTasks, task];
+      });
     });
 
-    newSocket.on('taskUpdated', (updatedTask) => {
-      console.log('Task updated:', updatedTask);
-      setTasks(prevTasks => 
-        prevTasks.map(task => 
-          task.id === updatedTask.id ? updatedTask : task
-        )
-      );
+    newSocket.on('task_updated', (task) => {
+      console.log('Task updated:', task);
+      setTasks(prevTasks => {
+        // Replace the updated task
+        return prevTasks.map(t => t.id === task.id ? task : t);
+      });
     });
 
-    newSocket.on('taskDeleted', (taskId) => {
+    newSocket.on('task_deleted', (taskId) => {
       console.log('Task deleted:', taskId);
-      setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
-    });
-
-    newSocket.on('memberAdded', (member) => {
-      console.log('Member added:', member);
-      setMembers(prevMembers => [...prevMembers, member]);
-    });
-
-    newSocket.on('memberDeleted', (memberId) => {
-      console.log('Member deleted:', memberId);
-      setMembers(prevMembers => prevMembers.filter(member => member.id !== memberId));
+      setTasks(prevTasks => prevTasks.filter(t => t.id !== taskId));
     });
 
     return () => {
+      console.log('App unmounting, cleaning up socket...');
       if (newSocket) {
-        console.log('Disconnecting socket');
-        newSocket.disconnect();
+        newSocket.off('connect');
+        newSocket.off('disconnect');
+        newSocket.off('connect_error');
+        newSocket.off('members');
+        newSocket.off('tasks');
+        newSocket.off('task_added');
+        newSocket.off('task_updated');
+        newSocket.off('task_deleted');
+        newSocket.close();
       }
     };
   }, []);
+
+  const addMember = (member) => {
+    console.log('Adding new member:', member);
+    if (socket && socket.connected) {
+      socket.emit('add_member', member);
+    } else {
+      console.error('Socket not connected');
+      alert('Not connected to server. Please try again.');
+    }
+  };
+
+  const addTask = (task) => {
+    console.log('Adding new task:', task);
+    if (socket && socket.connected) {
+      socket.emit('add_task', task);
+    } else {
+      console.error('Socket not connected');
+      alert('Not connected to server. Please try again.');
+    }
+  };
 
   const handleDayClick = (date) => {
     setSelectedDate(date);
@@ -133,394 +195,83 @@ function App() {
     setSelectedDate(null);
   };
 
-  const cleanTaskDescription = (description) => {
-    return description
-      // Remove timestamps in various formats
-      .replace(/\(\d{2}:\d{2}(?::\d{2})?\)/g, '')
-      .replace(/\(\d{2}:\d{2}\s*-\s*\d{2}:\d{2}\)/g, '')
-      .replace(/\d{2}:\d{2}\s*-\s*\d{2}:\d{2}/g, '')
-      // Remove standalone timestamps
-      .replace(/\b\d{2}:\d{2}\b/g, '')
-      // Remove numbers in parentheses
-      .replace(/\(\d+(?::\d+)?\)/g, '')
-      // Remove standalone numbers
-      .replace(/^\s*-?\s*\d+\s*$/, '')
-      // Remove trailing numbers
-      .replace(/\s+-\s*\d+\s*$/, '')
-      // Clean up any remaining artifacts
-      .replace(/\s+-\s*$/, '')
-      .replace(/^\s*-\s*/, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-  };
+  const handleMemberSubmit = (e) => {
+    e.preventDefault();
+    const memberName = memberInput.trim();
+    if (!memberName) return;
 
-  const handleParseText = () => {
-    console.log('handleParseText called');
-    if (!parseText.trim() || !parseDateValue) return;
+    const nicknames = memberName.split(' ').filter(n => n);
+    if (memberName.includes(' ')) {
+      nicknames.push(memberName.split(' ')[0]); // First name
+      nicknames.push(memberName.split(' ').slice(-1)[0]); // Last name
+      nicknames.push(memberName.split(' ').map(n => n[0]).join('')); // Initials
+    }
 
-    const lines = parseText.split('\n');
-    const parsedTasks = [];
-    let currentAssignee = null;
-
-    // Create a map of member names and their variations
-    const memberNameMap = new Map();
-    members.forEach(member => {
-      const fullName = member.name.toLowerCase();
-      const nameParts = fullName.split(' ');
-      
-      // Store full name
-      memberNameMap.set(fullName, member.name);
-      
-      // Store first name
-      if (nameParts[0]) {
-        memberNameMap.set(nameParts[0], member.name);
-      }
-      
-      // Store last name
-      if (nameParts.length > 1) {
-        memberNameMap.set(nameParts[nameParts.length - 1], member.name);
-      }
+    addMember({
+      name: memberName,
+      role: 'Developer',
+      nicknames: Array.from(new Set(nicknames)) // Remove duplicates
     });
-
-    // Function to find member name in text
-    const findMemberInText = (text) => {
-      const normalizedText = text.toLowerCase();
-      
-      // First try to match full names (longer matches first)
-      const fullNameMatch = Array.from(memberNameMap.entries())
-        .filter(([key]) => key.includes(' '))
-        .sort((a, b) => b[0].length - a[0].length)
-        .find(([key]) => normalizedText.includes(key));
-      
-      if (fullNameMatch) return fullNameMatch[1];
-
-      // Then try to match single names with word boundaries
-      const singleNameMatch = Array.from(memberNameMap.entries())
-        .filter(([key]) => !key.includes(' '))
-        .find(([key]) => {
-          const regex = new RegExp(`\\b${key}\\b`, 'i');
-          return regex.test(normalizedText);
-        });
-
-      return singleNameMatch ? singleNameMatch[1] : null;
-    };
-
-    // Process text in chunks to maintain context
-    let currentChunk = [];
-    let processingNotes = false;
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
-      if (!line) continue;
-
-      // Check for section headers
-      if (line.toLowerCase().includes('notes:')) {
-        processingNotes = true;
-        continue;
-      }
-
-      // Try to find member name in the line
-      const memberName = findMemberInText(line);
-      if (memberName) {
-        // Process any accumulated chunk before starting new member's section
-        if (currentChunk.length > 0 && currentAssignee) {
-          const taskText = currentChunk.join(' ');
-          const tasks = extractTasksFromText(taskText, currentAssignee);
-          parsedTasks.push(...tasks);
-        }
-        
-        currentAssignee = memberName;
-        currentChunk = [];
-        continue;
-      }
-
-      // Add line to current chunk
-      if (currentAssignee) {
-        currentChunk.push(line);
-      }
-    }
-
-    // Process final chunk
-    if (currentChunk.length > 0 && currentAssignee) {
-      const taskText = currentChunk.join(' ');
-      const tasks = extractTasksFromText(taskText, currentAssignee);
-      parsedTasks.push(...tasks);
-    }
-
-    // Helper function to extract tasks from text
-    function extractTasksFromText(text, assignee) {
-      const tasks = [];
-      
-      // Split into potential task segments
-      const segments = text.split(/(?=[.!?]|\b(?:and|then)\b)/i)
-        .map(segment => segment.trim())
-        .filter(segment => segment.length > 0);
-
-      segments.forEach(segment => {
-        // Clean up the segment
-        let taskDesc = cleanTaskDescription(segment);
-        
-        // Skip if too short or doesn't look like a task
-        if (taskDesc.length < 5) return;
-        
-        // Skip if it's just a header or label
-        if (taskDesc.toLowerCase().endsWith('tasks:')) return;
-
-        // Remove common prefixes
-        taskDesc = taskDesc
-          .replace(/^(tasks?|updates?|summary|notes?):?\s*/i, '')
-          .replace(/^[•\-*]\s*/, '')
-          .trim();
-
-        if (taskDesc) {
-          tasks.push({
-            id: Date.now().toString() + Math.random(),
-            description: taskDesc,
-            assignee: assignee,
-            date: format(startOfDay(parseDateValue), 'yyyy-MM-dd')
-          });
-        }
-      });
-
-      return tasks;
-    }
-
-    console.log('Parsed tasks:', parsedTasks);
-
-    // Only emit tasks if we found any
-    if (parsedTasks.length > 0) {
-      parsedTasks.forEach(task => {
-        console.log('Emitting task:', task);
-        socket.emit('addTask', task);
-      });
-
-      setShowParseDialog(false);
-      setParseText('');
-      handleDayClick(parseDateValue);
-    } else {
-      console.log('No valid tasks found in the text');
-    }
+    setMemberInput('');
   };
 
-  const handleGenerateReport = () => {
-    if (selectedMembers.length === 0 || !dateRange[0] || !dateRange[1]) return;
+  const handleMemberUpdate = (memberId, updates) => {
+    if (!socket || !socket.connected) {
+      console.error('Socket not connected');
+      alert('Not connected to server. Please try again.');
+      return;
+    }
 
-    const [startDate, endDate] = dateRange;
-    const reportContent = [];
-    
-    // Report Header
-    reportContent.push('Task Report\n');
-    reportContent.push(`Generated on: ${format(new Date(), 'MMMM d, yyyy')}\n`);
-    reportContent.push(`Period: ${format(startDate, 'MMMM d, yyyy')} to ${format(endDate, 'MMMM d, yyyy')}\n\n`);
+    const member = members.find(m => m.id === memberId);
+    if (!member) {
+      console.error('Member not found:', memberId);
+      return;
+    }
 
-    // Individual Summaries
-    let totalTasksAllMembers = 0;
-    const memberTaskCounts = {};
-
-    selectedMembers.forEach(memberName => {
-      const memberTasks = tasks.filter(task => {
-        const taskDate = parseISO(task.date);
-        return task.assignee === memberName && 
-               taskDate >= startOfDay(startDate) && 
-               taskDate <= endOfDay(endDate);
-      });
-      
-      memberTaskCounts[memberName] = memberTasks.length;
-      totalTasksAllMembers += memberTasks.length;
-      
-      reportContent.push(`${memberName}'s Tasks:\n`);
-      
-      // Add personal summary
-      reportContent.push('Summary:\n');
-      reportContent.push(generatePersonalSummary(memberName, memberTasks));
-      reportContent.push('Detailed Task List:\n');
-      
-      if (memberTasks.length === 0) {
-        reportContent.push('No tasks completed during this period.\n');
-      } else {
-        // Group tasks by date
-        const tasksByDate = {};
-        memberTasks.forEach(task => {
-          const dateKey = format(parseISO(task.date), 'MMM d, yyyy');
-          if (!tasksByDate[dateKey]) {
-            tasksByDate[dateKey] = [];
-          }
-          tasksByDate[dateKey].push(task);
-        });
-
-        // Output tasks grouped by date
-        Object.entries(tasksByDate)
-          .sort(([dateA], [dateB]) => new Date(dateA) - new Date(dateB))
-          .forEach(([date, dateTasks]) => {
-            reportContent.push(`\n  ${date}:`);
-            dateTasks.forEach(task => {
-              reportContent.push(`    - ${task.description}\n`);
-            });
-          });
+    // Generate nicknames if not provided
+    if (!updates.nicknames) {
+      const nicknames = updates.name.split(' ').filter(n => n);
+      if (updates.name.includes(' ')) {
+        nicknames.push(updates.name.split(' ')[0]); // First name
+        nicknames.push(updates.name.split(' ').slice(-1)[0]); // Last name
+        nicknames.push(updates.name.split(' ').map(n => n[0]).join('')); // Initials
       }
-      reportContent.push('\n');
+      updates.nicknames = Array.from(new Set(nicknames)); // Remove duplicates
+    }
+
+    socket.emit('update_member', {
+      ...member,
+      ...updates
     });
-
-    // Team Summary (if multiple members selected)
-    if (selectedMembers.length > 1) {
-      reportContent.push('\nTeam Summary:\n');
-      
-      // Generate team overview
-      const periodLength = Math.ceil((endOfDay(endDate) - startOfDay(startDate)) / (1000 * 60 * 60 * 24)) + 1;
-      const tasksPerDay = (totalTasksAllMembers / periodLength).toFixed(1);
-      
-      reportContent.push(`Over this ${periodLength}-day period, the team completed ${totalTasksAllMembers} tasks `);
-      reportContent.push(`(averaging ${tasksPerDay} tasks per day).\n\n`);
-      
-      reportContent.push('Individual Contributions:\n');
-      selectedMembers.forEach(memberName => {
-        const percentage = (memberTaskCounts[memberName] / totalTasksAllMembers * 100).toFixed(1);
-        reportContent.push(`  - ${memberName}: ${memberTaskCounts[memberName]} tasks (${percentage}%)\n`);
-      });
-    }
-
-    // Create and download the file
-    const blob = new Blob([reportContent.join('')], { type: 'text/plain' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `task_report_${format(startDate, 'yyyy-MM-dd')}_to_${format(endDate, 'yyyy-MM-dd')}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-
-    setShowReportDialog(false);
-    setSelectedMembers([]);
-    setDateRange([null, null]);
   };
 
-  const generatePersonalSummary = (memberName, tasks) => {
-    if (tasks.length === 0) {
-      return `${memberName} had no recorded tasks during this period.\n`;
+  const handleMemberDelete = (memberId) => {
+    if (!socket || !socket.connected) {
+      console.error('Socket not connected');
+      alert('Not connected to server. Please try again.');
+      return;
     }
 
-    // Analyze tasks to identify themes and patterns
-    const taskAnalysis = {
-      meetings: tasks.filter(t => 
-        t.description.toLowerCase().includes('meeting') || 
-        t.description.toLowerCase().includes('discuss')),
-      planning: tasks.filter(t => 
-        t.description.toLowerCase().includes('plan') || 
-        t.description.toLowerCase().includes('priorit') ||
-        t.description.toLowerCase().includes('roadmap')),
-      development: tasks.filter(t => 
-        t.description.toLowerCase().includes('develop') || 
-        t.description.toLowerCase().includes('implement') ||
-        t.description.toLowerCase().includes('build')),
-      review: tasks.filter(t => 
-        t.description.toLowerCase().includes('review') || 
-        t.description.toLowerCase().includes('feedback')),
-      coordination: tasks.filter(t => 
-        t.description.toLowerCase().includes('coordinat') || 
-        t.description.toLowerCase().includes('facilitat') ||
-        t.description.toLowerCase().includes('organiz')),
-      stakeholders: tasks.filter(t => 
-        t.description.toLowerCase().includes('stakeholder') || 
-        t.description.toLowerCase().includes('client') ||
-        t.description.toLowerCase().includes('partner')),
-    };
-
-    // Find team member mentions
-    const teamMemberMentions = tasks
-      .map(task => {
-        const words = task.description.toLowerCase().split(/\s+/);
-        return words.find(word => 
-          word.length > 2 && 
-          members.some(m => m.name.toLowerCase().includes(word))
-        );
-      })
-      .filter(Boolean);
-
-    // Generate the main focus area
-    let mainFocus = Object.entries(taskAnalysis)
-      .sort((a, b) => b[1].length - a[1].length)[0][0];
-
-    // Start building the summary
-    let summary = '';
-
-    // Opening statement based on main activities
-    if (taskAnalysis.coordination.length > 0 || taskAnalysis.meetings.length > 0) {
-      summary += `${memberName} focused on ${
-        taskAnalysis.coordination.length > taskAnalysis.meetings.length 
-          ? 'high-level project coordination' 
-          : 'team collaboration and alignment'
-      }`;
-    } else if (taskAnalysis.development.length > 0) {
-      summary += `${memberName} concentrated on technical development and implementation`;
-    } else if (taskAnalysis.planning.length > 0) {
-      summary += `${memberName} focused on strategic planning and prioritization`;
-    } else {
-      summary += `${memberName} worked on various tasks`;
+    if (window.confirm('Are you sure you want to delete this team member?')) {
+      socket.emit('delete_member', memberId);
     }
+  };
 
-    // Add context about key activities
-    let activities = [];
-    if (taskAnalysis.meetings.length > 0) {
-      const meetingContext = taskAnalysis.meetings[0].description
-        .replace(/^-\s*/, '')
-        .toLowerCase()
-        .includes('un team') 
-          ? 'with the UN Team' 
-          : 'with key stakeholders';
-      activities.push(`organized meetings ${meetingContext}`);
-    }
-    if (taskAnalysis.stakeholders.length > 0) {
-      activities.push('addressed stakeholder feedback');
-    }
-    if (taskAnalysis.development.length > 0) {
-      activities.push('guided development initiatives');
-    }
+  const findMemberByNameOrNickname = (nameOrNickname) => {
+    return members.find(member => 
+      member.name.toLowerCase() === nameOrNickname.toLowerCase() ||
+      (member.nicknames && member.nicknames.some(nick => 
+        nick.toLowerCase() === nameOrNickname.toLowerCase()
+      ))
+    );
+  };
 
-    if (activities.length > 0) {
-      summary += `, ${activities.join(', ')}, and `;
-    } else {
-      summary += ' and ';
-    }
-
-    // Add specific project areas
-    const projectAreas = tasks
-      .map(task => {
-        const description = task.description.toLowerCase();
-        if (description.includes('signup')) return 'signup process';
-        if (description.includes('platform')) return 'platform enhancements';
-        if (description.includes('partnership')) return 'partnership initiatives';
-        if (description.includes('pipeline')) return 'development pipeline';
-        return null;
-      })
-      .filter(Boolean);
-
-    if (projectAreas.length > 0) {
-      summary += `contributed to improvements in ${projectAreas.join(', ')}. `;
-    } else {
-      summary += 'supported various project initiatives. ';
-    }
-
-    // Add collaboration details if any
-    if (teamMemberMentions.length > 0) {
-      summary += `${memberName} collaborated closely with team members`;
-      if (taskAnalysis.review.length > 0) {
-        summary += ', providing feedback and ensuring alignment with project goals. ';
-      } else {
-        summary += ' to drive project objectives forward. ';
-      }
-    }
-
-    // Add impact statement
-    const impactStatements = [
-      'His efforts helped maintain momentum on key deliverables',
-      'His contributions supported the team\'s sprint objectives',
-      'His work helped drive progress on critical initiatives',
-      'His involvement was key to moving project milestones forward'
-    ];
-    summary += impactStatements[Math.floor(Math.random() * impactStatements.length)] + '.\n';
-
-    return summary;
+  const renderMemberName = (member) => {
+    if (!member) return 'Unknown';
+    const nicknames = member.nicknames && member.nicknames.length > 0
+      ? ` (${member.nicknames.join(', ')})`
+      : '';
+    return `${member.name}${nicknames}`;
   };
 
   return (
@@ -533,16 +284,6 @@ function App() {
               <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                 Sprints Task Manager
               </Typography>
-              <Button 
-                color="inherit" 
-                onClick={() => {
-                  setParseDateValue(new Date());
-                  setShowParseDialog(true);
-                }}
-                sx={{ mr: 2 }}
-              >
-                PARSE TEXT
-              </Button>
               <IconButton color="inherit" onClick={() => setShowTeamMembers(true)}>
                 <PeopleIcon />
               </IconButton>
@@ -566,13 +307,21 @@ function App() {
 
           <Dialog 
             open={showTeamMembers} 
-            onClose={() => setShowTeamMembers(false)} 
-            maxWidth="md" 
+            onClose={() => setShowTeamMembers(false)}
+            maxWidth="sm"
             fullWidth
           >
             <DialogTitle>Team Members</DialogTitle>
             <DialogContent>
-              <TeamMembers socket={socket} members={members} />
+              <TeamMembers 
+                socket={socket} 
+                members={members} 
+                onMemberSubmit={handleMemberSubmit} 
+                onMemberUpdate={handleMemberUpdate} 
+                onMemberDelete={handleMemberDelete} 
+                memberInput={memberInput} 
+                setMemberInput={setMemberInput} 
+              />
             </DialogContent>
             <DialogActions>
               <Button onClick={() => setShowTeamMembers(false)}>Close</Button>
@@ -600,143 +349,13 @@ function App() {
             />
           </Dialog>
 
-          <Dialog 
-            open={showParseDialog} 
-            onClose={() => setShowParseDialog(false)}
-            maxWidth="md"
-            fullWidth
-          >
-            <DialogTitle>Parse Tasks</DialogTitle>
-            <DialogContent>
-              <Box sx={{ mb: 2, mt: 1 }}>
-                <DatePicker
-                  label="Select Date"
-                  value={parseDateValue}
-                  onChange={(newValue) => {
-                    console.log('Date changed:', newValue);
-                    setParseDateValue(newValue);
-                  }}
-                  slotProps={{
-                    textField: { fullWidth: true }
-                  }}
-                  sx={{ mb: 2 }}
-                />
-              </Box>
-              <TextField
-                autoFocus
-                multiline
-                rows={10}
-                label="Paste text to parse"
-                fullWidth
-                value={parseText}
-                onChange={(e) => {
-                  console.log('Text changed:', e.target.value);
-                  setParseText(e.target.value);
-                }}
-                placeholder="Paste text with team member names and their tasks..."
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setShowParseDialog(false)}>Cancel</Button>
-              <Button 
-                onClick={() => {
-                  console.log('Parse Tasks button clicked');
-                  handleParseText();
-                }}
-                variant="contained"
-                disabled={!parseText.trim() || !parseDateValue}
-                sx={{
-                  backgroundColor: '#6750A4',
-                  '&:hover': {
-                    backgroundColor: '#4F378B'
-                  }
-                }}
-              >
-                Parse Tasks
-              </Button>
-            </DialogActions>
-          </Dialog>
-
-          <Dialog
+          <ReportDialog
             open={showReportDialog}
             onClose={() => setShowReportDialog(false)}
-            maxWidth="sm"
-            fullWidth
-          >
-            <DialogTitle>Generate Task Report</DialogTitle>
-            <DialogContent>
-              <Box sx={{ 
-                mt: 2, 
-                mb: 3,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2
-              }}>
-                <DatePicker
-                  label="Start Date"
-                  value={dateRange[0]}
-                  onChange={(newValue) => setDateRange([newValue, dateRange[1]])}
-                  slotProps={{
-                    textField: { fullWidth: true }
-                  }}
-                  maxDate={dateRange[1]}
-                />
-                <DatePicker
-                  label="End Date"
-                  value={dateRange[1]}
-                  onChange={(newValue) => setDateRange([dateRange[0], newValue])}
-                  slotProps={{
-                    textField: { fullWidth: true }
-                  }}
-                  minDate={dateRange[0]}
-                />
-              </Box>
-              <FormControl fullWidth>
-                <InputLabel>Select Team Members</InputLabel>
-                <Select
-                  multiple
-                  value={selectedMembers}
-                  onChange={(e) => setSelectedMembers(e.target.value)}
-                  renderValue={(selected) => selected.join(', ')}
-                  label="Select Team Members"
-                >
-                  <MenuItem value="ALL" onClick={() => setSelectedMembers(members.map(m => m.name))}>
-                    <Checkbox checked={selectedMembers.length === members.length} />
-                    <ListItemText primary="Select All" />
-                  </MenuItem>
-                  <Divider />
-                  {members.map((member) => (
-                    <MenuItem key={member.id} value={member.name}>
-                      <Checkbox checked={selectedMembers.indexOf(member.name) > -1} />
-                      <ListItemText primary={member.name} />
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => {
-                setShowReportDialog(false);
-                setSelectedMembers([]);
-                setDateRange([null, null]);
-              }}>
-                Cancel
-              </Button>
-              <Button
-                onClick={handleGenerateReport}
-                variant="contained"
-                disabled={selectedMembers.length === 0 || !dateRange[0] || !dateRange[1]}
-                sx={{
-                  backgroundColor: '#6750A4',
-                  '&:hover': {
-                    backgroundColor: '#4F378B'
-                  }
-                }}
-              >
-                Generate Report
-              </Button>
-            </DialogActions>
-          </Dialog>
+            socket={socket}
+            tasks={tasks}
+            members={members}
+          />
 
           <Footer />
         </Box>

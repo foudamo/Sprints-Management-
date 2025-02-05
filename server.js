@@ -1,40 +1,62 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
-const mongoose = require('mongoose');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
+const { v4: uuidv4 } = require('uuid');
+const { Sequelize } = require('sequelize');
+const { sequelize, initModels } = require('./db');
 
 const app = express();
 const server = http.createServer(app);
 
-const isDev = process.env.NODE_ENV !== 'production';
-const origin = isDev ? 'http://localhost:3000' : process.env.VERCEL_URL || 'https://sprints-management.vercel.app';
-
-const io = new Server(server, {
-  cors: {
-    origin: origin,
-    methods: ["GET", "POST"],
-    credentials: true
-  }
-});
-
+// CORS configuration
 app.use(cors({
-  origin: origin,
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));
 
+// Socket.IO configuration
+const io = require('socket.io')(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["my-custom-header"],
+    credentials: false
+  },
+  pingTimeout: 60000,
+  pingInterval: 25000,
+  transports: ['polling', 'websocket']
+});
+
+// Add middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+
+const isDev = process.env.NODE_ENV !== 'production';
+
+// Initialize models
+const { TeamMember, Task, ParsedText } = initModels();
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100
+});
+app.use(limiter);
 
 // Serve static files from the React app in production
 if (!isDev) {
   app.use(express.static(path.join(__dirname, 'client/build')));
 }
 
-// Global error handler for uncaught exceptions
+// Global error handlers
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error);
 });
@@ -43,603 +65,757 @@ process.on('unhandledRejection', (error) => {
   console.error('Unhandled Rejection:', error);
 });
 
-// Path for storing team members
-const TEAM_MEMBERS_PATH = path.join(__dirname, 'team_members.json');
-const TASKS_PATH = path.join(__dirname, 'tasks.json');
+// PostgreSQL Configuration
+const sequelizeConfig = new Sequelize('postgres://postgres:BzfZEbT6M1rYNP7ouy0e@sprints-mohamed-fouda.cj24eucoaq0n.us-east-1.rds.amazonaws.com:5432/sprints', {
+  dialect: 'postgres',
+  logging: console.log,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    },
+    statement_timeout: 30000, // 30 seconds
+    idle_in_transaction_session_timeout: 30000 // 30 seconds
+  },
+  pool: {
+    max: 10,
+    min: 0,
+    acquire: 30000,
+    idle: 10000
+  },
+  retry: {
+    max: 3,
+    timeout: 30000
+  }
+});
 
-// Default team members if no saved data exists
-const DEFAULT_TEAM_MEMBERS = [
-  { id: '1', name: 'Grayson Bass', nicknames: ['grayson', 'grayson bass'] },
-  { id: '2', name: 'Zac Waite', nicknames: ['zac', 'zac waite'] },
-  { id: '3', name: 'Salman Naqvi', nicknames: ['salman', 'salman naqvi'] },
-  { id: '4', name: 'Anmoll', nicknames: ['anmol'] },
-  { id: '5', name: 'Dipto Biswas', nicknames: ['dipto', 'dipto biswas'] },
-  { id: '6', name: 'Ishu Trivedi', nicknames: ['ishu', 'ishu trivedi'] },
-  { id: '7', name: 'Guruprasanna Rajukannan Suresh', nicknames: ['guru'] },
-  { id: '8', name: 'Alexa', nicknames: ['alexa'] },
-  { id: '9', name: 'Connie', nicknames: ['connie'] },
-  { id: '10', name: 'Linh', nicknames: ['linh'] },
-  { id: '11', name: 'Hargun', nicknames: ['hargun'] },
-  { id: '12', name: 'Mohamed Fouda', nicknames: ['mohamed', 'fouda'] }
-];
+// Socket.IO event handlers
+io.on('connection', (socket) => {
+  console.log('Client connected:', socket.id);
 
-// Load team members from file or use defaults
-function loadTeamMembers() {
+  // Handle disconnection
+  socket.on('disconnect', (reason) => {
+    console.log('Client disconnected:', socket.id, 'Reason:', reason);
+  });
+
+  // Handle connection errors
+  socket.on('connect_error', (error) => {
+    console.error('Socket connection error:', error);
+  });
+
+  // Handle errors
+  socket.on('error', (error) => {
+    console.error('Socket error:', error);
+  });
+
   try {
-    if (fs.existsSync(TEAM_MEMBERS_PATH)) {
-      const data = fs.readFileSync(TEAM_MEMBERS_PATH, 'utf8');
-      return JSON.parse(data);
-    }
-  } catch (error) {
-    console.error('Error loading team members:', error);
-  }
-  return DEFAULT_TEAM_MEMBERS;
-}
-
-// Save team members to file
-function saveTeamMembers(members) {
-  try {
-    fs.writeFileSync(TEAM_MEMBERS_PATH, JSON.stringify(members, null, 2));
-  } catch (error) {
-    console.error('Error saving team members:', error);
-  }
-}
-
-// Get current tasks from file
-function getCurrentTasks() {
-  try {
-    if (fs.existsSync(TASKS_PATH)) {
-      const data = fs.readFileSync(TASKS_PATH, 'utf8');
-      return JSON.parse(data);
-    }
-  } catch (error) {
-    console.error('Error loading tasks:', error);
-  }
-  return [];
-}
-
-// Save tasks to file
-function saveTasks(tasks) {
-  try {
-    fs.writeFileSync(TASKS_PATH, JSON.stringify(tasks, null, 2));
-  } catch (error) {
-    console.error('Error saving tasks:', error);
-  }
-}
-
-// Initialize team members
-let teamMembers = loadTeamMembers();
-
-// Helper function to normalize and match team member names
-function normalizeAndMatchName(text) {
-  const normalizedText = text.toLowerCase().trim();
-  
-  // First try to match the exact line
-  for (const member of teamMembers) {
-    if (member.nicknames.some(variant => normalizedText.includes(variant))) {
-      return member.name;
-    }
-  }
-  
-  // If no match found, try to extract name from common patterns
-  const patterns = [
-    /^([A-Za-z]+ ?[A-Za-z]*)(:|$|\s+will|\s+to|\s+is|\s+has|\s+plans)/i,  // Name followed by : or end of line or common words
-    /^([A-Za-z]+ ?[A-Za-z]*)\s*(?:\(|-)/, // Name followed by ( or -
-    /^([A-Za-z]+ ?[A-Za-z]*):?\s+(?:working|continuing|finishing|exploring|preparing)/i // Name followed by action verbs
-  ];
-  
-  for (const pattern of patterns) {
-    const match = text.match(pattern);
-    if (match) {
-      const extractedName = match[1].toLowerCase().trim();
-      for (const member of teamMembers) {
-        if (member.nicknames.some(variant => extractedName.includes(variant))) {
-          return member.name;
-        }
+    // Send initial data to the client
+    const sendInitialData = async () => {
+      try {
+        const [members, tasks] = await Promise.all([
+          TeamMember.findAll(),
+          Task.findAll({
+            include: [{
+              model: TeamMember,
+              as: 'assignedMember',
+              attributes: ['id', 'name']
+            }]
+          })
+        ]);
+        
+        console.log('Sending initial data to client');
+        socket.emit('members', members);
+        socket.emit('tasks', tasks);
+      } catch (error) {
+        console.error('Error sending initial data:', error);
+        socket.emit('error', { message: 'Failed to load initial data' });
       }
-    }
+    };
+
+    socket.on('request_initial_data', sendInitialData);
+    sendInitialData(); // Send data on initial connection
+
+    // Handle member events
+    socket.on('add_member', async (data) => {
+      try {
+        console.log('Adding new member:', data);
+        const member = await TeamMember.create({
+          id: uuidv4(),
+          name: data.name.trim(),
+          role: data.role?.trim() || 'Developer',
+          nicknames: data.nicknames || []
+        });
+
+        const newMember = member.toJSON();
+        console.log('Created member:', newMember);
+        io.emit('member_added', newMember);
+      } catch (error) {
+        console.error('Error adding member:', error);
+        socket.emit('error', { message: error.message });
+      }
+    });
+
+    socket.on('update_member', async (data) => {
+      try {
+        console.log('Updating member:', data);
+        await TeamMember.update(
+          {
+            name: data.name?.trim(),
+            role: data.role?.trim(),
+            nicknames: data.nicknames
+          },
+          { where: { id: data.id } }
+        );
+
+        const updated = await TeamMember.findByPk(data.id);
+        if (updated) {
+          const updatedMember = updated.toJSON();
+          console.log('Updated member:', updatedMember);
+          io.emit('member_updated', updatedMember);
+        }
+      } catch (error) {
+        console.error('Error updating member:', error);
+        socket.emit('error', { message: error.message });
+      }
+    });
+
+    socket.on('delete_member', async (memberId) => {
+      try {
+        console.log('Deleting member:', memberId);
+        const deleted = await TeamMember.destroy({ where: { id: memberId } });
+        if (deleted) {
+          console.log('Deleted member:', memberId);
+          io.emit('member_deleted', memberId);
+        }
+      } catch (error) {
+        console.error('Error deleting member:', error);
+        socket.emit('error', { message: error.message });
+      }
+    });
+
+    // Handle task events
+    socket.on('add_task', async (data) => {
+      try {
+        console.log('Starting task creation:', data);
+        
+        // Validate input data
+        if (!data.title || !data.assignedTo) {
+          throw new Error('Title and assignedTo are required');
+        }
+        
+        console.log('Creating task in database...');
+        const task = await Task.create({
+          id: uuidv4(),
+          title: data.title.trim(),
+          description: data.description || '',
+          assignedTo: data.assignedTo,
+          status: data.status || 'todo',
+          priority: data.priority || 'medium',
+          dueDate: data.dueDate
+        }).catch(err => {
+          console.error('Database error during task creation:', err);
+          throw err;
+        });
+
+        console.log('Task created, fetching with associations...');
+        const taskWithAssignee = await Task.findByPk(task.id).catch(err => {
+          console.error('Error fetching created task:', err);
+          throw err;
+        });
+
+        // Send both events to ensure client receives the response
+        console.log('Emitting task_added event...');
+        io.emit('task_added', taskWithAssignee);
+        socket.emit('task_save_success', taskWithAssignee);
+        
+        console.log('Task added successfully:', taskWithAssignee.toJSON());
+      } catch (error) {
+        console.error('Error in add_task handler:', error);
+        socket.emit('error', { 
+          message: error.message,
+          details: error.toString(),
+          timestamp: new Date().toISOString()
+        });
+      }
+    });
+
+    socket.on('update_task', async (data) => {
+      try {
+        console.log('Starting task update:', data);
+        
+        if (!data.id) {
+          throw new Error('Task ID is required for update');
+        }
+        
+        console.log('Updating task in database...');
+        await Task.update({
+          title: data.title?.trim(),
+          description: data.description,
+          assignedTo: data.assignedTo,
+          status: data.status,
+          priority: data.priority,
+          dueDate: data.dueDate
+        }, {
+          where: { id: data.id }
+        }).catch(err => {
+          console.error('Database error during task update:', err);
+          throw err;
+        });
+
+        console.log('Task updated, fetching latest version...');
+        const updated = await Task.findByPk(data.id).catch(err => {
+          console.error('Error fetching updated task:', err);
+          throw err;
+        });
+
+        if (!updated) {
+          throw new Error('Task not found after update');
+        }
+
+        console.log('Emitting task_updated event...');
+        io.emit('task_updated', updated);
+        socket.emit('task_save_success', updated);
+        
+        console.log('Task updated successfully:', updated.toJSON());
+      } catch (error) {
+        console.error('Error in update_task handler:', error);
+        socket.emit('error', { 
+          message: error.message,
+          details: error.toString(),
+          timestamp: new Date().toISOString()
+        });
+      }
+    });
+
+    socket.on('delete_task', async (taskId) => {
+      try {
+        console.log('Deleting task:', taskId);
+        await Task.destroy({
+          where: { id: taskId }
+        });
+        io.emit('task_deleted', taskId);
+        console.log('Task deleted:', taskId);
+      } catch (error) {
+        console.error('Error deleting task:', error);
+        socket.emit('error', { message: error.message });
+      }
+    });
+
+    // Handle text parsing
+    socket.on('parse_text', async (data) => {
+      try {
+        console.log('Starting text parsing:', data);
+        if (!data.text) {
+          throw new Error('No text provided for parsing');
+        }
+        
+        await parseText(data.text, socket, data.taskDate);
+        
+      } catch (error) {
+        console.error('Error parsing text:', error);
+        socket.emit('error', { message: error.message });
+      }
+    });
+
+    socket.on('generateReport', async (data, callback) => {
+      console.log('Received generateReport request:', data);
+      
+      try {
+        if (!data || !data.startDate || !data.endDate) {
+          console.error('Invalid report data received:', data);
+          socket.emit('error', { message: 'Invalid report data: missing dates' });
+          if (callback) callback({ success: false, error: 'Invalid report data' });
+          return;
+        }
+
+        console.log('Generating report with data:', {
+          startDate: new Date(data.startDate).toISOString(),
+          endDate: new Date(data.endDate).toISOString(),
+          teamMember: data.teamMember
+        });
+
+        // Get all team members for mapping IDs to names
+        console.log('Fetching team members...');
+        const teamMembers = await TeamMember.findAll({
+          raw: true,
+          logging: console.log
+        });
+        console.log('Found team members:', teamMembers);
+        
+        const memberMap = {};
+        teamMembers.forEach(member => {
+          memberMap[member.id] = member.name;
+        });
+        console.log('Created member map:', memberMap);
+
+        // Build the query conditions
+        const whereConditions = {
+          dueDate: {
+            [Sequelize.Op.between]: [new Date(data.startDate), new Date(data.endDate)]
+          }
+        };
+        console.log('Query conditions:', JSON.stringify(whereConditions, null, 2));
+
+        // Add team member filter if specified
+        if (data.teamMember && data.teamMember !== 'all') {
+          const selectedMember = teamMembers.find(m => m.name === data.teamMember);
+          if (selectedMember) {
+            whereConditions.assignedTo = selectedMember.id;
+            console.log('Added team member filter:', selectedMember.id);
+          }
+        }
+
+        // Fetch tasks with their assigned team members
+        console.log('Fetching tasks with conditions:', JSON.stringify(whereConditions, null, 2));
+        const tasks = await Task.findAll({
+          where: whereConditions,
+          include: [{
+            model: TeamMember,
+            as: 'assignedMember',
+            attributes: ['id', 'name'],
+            required: false
+          }],
+          order: [['dueDate', 'ASC']],
+          logging: console.log
+        });
+        
+        console.log('Found tasks:', tasks.length);
+        if (tasks.length > 0) {
+          console.log('Sample task:', JSON.stringify(tasks[0].get({ plain: true }), null, 2));
+        }
+
+        // Generate and send the report
+        const reportContent = generateReportContent(tasks, data.startDate, data.endDate);
+        console.log('Generated report content length:', reportContent.length);
+        
+        const response = {
+          content: reportContent,
+          downloadFilename: `task_report_${new Date(data.startDate).toISOString().split('T')[0]}_to_${new Date(data.endDate).toISOString().split('T')[0]}.txt`
+        };
+        
+        console.log('Sending report to client');
+        socket.emit('reportGenerated', response);
+        if (callback) callback({ success: true });
+        
+      } catch (error) {
+        console.error('Error generating report:', error);
+        console.error('Error stack:', error.stack);
+        socket.emit('error', { 
+          message: 'Failed to generate report: ' + error.message,
+          details: error.toString()
+        });
+        if (callback) callback({ success: false, error: error.message });
+      }
+    });
+
+  } catch (error) {
+    console.error('Socket error:', error);
+    socket.emit('error', { message: error.message });
   }
-  
-  return null;
-}
+});
 
 // Parse text into tasks
-async function parseText(data, socket) {
+async function parseText(text, socket, taskDate = new Date()) {
   try {
-    const text = data.text;
-    const tasks = [];
+    console.log('Starting text parsing...', { taskDate });
+    socket?.emit('parsing_status', { status: 'started', message: 'Starting text parsing...' });
+
+    // Create the parsed text entry first
+    const parsedText = await ParsedText.create({
+      id: uuidv4(),
+      rawText: text,
+      taskDate: taskDate,
+      parsedDate: new Date()
+    });
+    console.log('Created ParsedText:', parsedText.id);
+
     const lines = text.split('\n');
-    
-    let currentDate = null;
+    let tasks = [];
     let currentMember = null;
+    let isInActionItems = false;
+    let isInTeamUpdates = false;
+    let taskBuffer = [];
     
-    for (const line of lines) {
-      const trimmedLine = line.trim();
-      if (!trimmedLine) continue;
+    socket?.emit('parsing_status', { status: 'processing', message: 'Analyzing text...' });
+
+    // Get all team members once
+    const members = await TeamMember.findAll();
+    
+    // Helper function to clean task description
+    const cleanTaskDescription = (text) => {
+      // If it's just a timestamp, return empty
+      if (text.match(/^\d{2}:\d{2}$/) || text.match(/^\d{2}\s*-\s*\d{2}:\d{2}$/)) {
+        return '';
+      }
+
+      return text
+        // Remove timestamps at the end of lines
+        .replace(/\s*\(\d{2}:\d{2}\)\s*$/, '')
+        // Remove timestamp prefixes while preserving the rest of the line
+        .replace(/^\d{2}\s*-\s*\d{2}:\d{2}\s*[:,-]?\s*/, '')
+        // Remove bullet points and numbers at start
+        .replace(/^[-•*]|\d+[\.)]\s*/, '')
+        // Clean up any double spaces
+        .replace(/\s+/g, ' ')
+        .trim();
+    };
+
+    // Helper function to create task for member
+    const createTaskForMember = async (member, description) => {
+      if (!description) return null;
       
-      // Try to find team member mention
-      for (const member of teamMembers) {
+      const cleanedDescription = cleanTaskDescription(description);
+      if (!cleanedDescription) return null;
+
+      console.log('Creating task for:', member.name, 'Description:', cleanedDescription);
+      const task = await Task.create({
+        id: uuidv4(),
+        title: cleanedDescription.substring(0, Math.min(255, cleanedDescription.length)),
+        description: cleanedDescription,
+        assignedTo: member.id,
+        status: 'todo',
+        priority: 'medium',
+        parsedTextId: parsedText.id,
+        dueDate: taskDate
+      });
+      return task;
+    };
+
+    // Process shared tasks mentioned in Team Updates
+    const processSharedTasks = async (line) => {
+      const colonIndex = line.indexOf(':');
+      if (colonIndex === -1) return;
+
+      const beforeColon = line.substring(0, colonIndex).toLowerCase();
+      const afterColon = line.substring(colonIndex + 1).trim();
+
+      // Find all members mentioned before the colon
+      const mentionedMembers = members.filter(member => {
         const memberNameLower = member.name.toLowerCase();
-        const nicknamesLower = member.nicknames.map(n => n.toLowerCase());
-        
-        if (
-          trimmedLine.toLowerCase().includes(memberNameLower) ||
-          nicknamesLower.some(nickname => trimmedLine.toLowerCase().includes(nickname))
-        ) {
-          currentMember = member.name;
-          break;
+        const nicknamesLower = member.nicknames || [];
+        return beforeColon.includes(memberNameLower) ||
+               nicknamesLower.some(nickname => beforeColon.includes(nickname.toLowerCase()));
+      });
+
+      if (mentionedMembers.length > 0 && afterColon) {
+        for (const member of mentionedMembers) {
+          const task = await createTaskForMember(member, afterColon);
+          if (task) tasks.push(task);
         }
       }
-      
-      // If we found a member and there's a task description
-      if (currentMember && trimmedLine.includes(':')) {
-        const taskDescription = trimmedLine.split(':')[1].trim();
-        if (taskDescription) {
-          tasks.push({
-            id: Date.now().toString() + tasks.length,
-            description: taskDescription,
-            assignee: currentMember,
-            date: new Date().toISOString().split('T')[0]
-          });
-        }
-      }
-    }
-    
-    return tasks;
-  } catch (error) {
-    console.error('Error parsing text:', error);
-    throw error;
-  }
-}
+    };
 
-// Function to parse text and extract tasks
-async function parseDocx(socket) {
-  try {
-    console.log('Starting document parsing...');
-    socket?.emit('parsing-progress', { 
-      stage: 'Reading document', 
-      progress: 10 
-    });
-
-    const textPath = path.join(__dirname, 'Summary.txt');
-    console.log('Reading from:', textPath);
-    
-    if (!fs.existsSync(textPath)) {
-      throw new Error('Summary.txt not found');
-    }
-
-    const content = await fs.promises.readFile(textPath, 'utf8');
-    console.log('File size:', content.length, 'bytes');
-
-    if (!content) {
-      throw new Error('No content found in document');
-    }
-
-    socket?.emit('parsing-progress', { 
-      stage: 'Analyzing content', 
-      progress: 30 
-    });
-
-    // Find the Action items section
-    const actionItemsMatch = content.match(/Action items\n([\s\S]*?)(?:\n\s*\n|$)/i);
-    
-    if (!actionItemsMatch) {
-      throw new Error('No action items section found');
-    }
-
-    const actionItemsSection = actionItemsMatch[1];
-    console.log('Found Action Items section');
-
-    socket?.emit('parsing-progress', { 
-      stage: 'Extracting tasks', 
-      progress: 50 
-    });
-
-    const tasksByMember = {};
-    let currentMember = null;
-
-    // Split into lines and process
-    const lines = actionItemsSection.split('\n');
-    
-    for (const line of lines) {
-      const trimmedLine = line.trim();
-      
-      // Skip empty lines
+    for (let i = 0; i < lines.length; i++) {
+      const trimmedLine = lines[i].trim();
       if (!trimmedLine) continue;
 
-      // Check if this line is a member name
-      const memberName = normalizeAndMatchName(trimmedLine);
-      
-      if (memberName) {
-        currentMember = memberName;
-        if (!tasksByMember[currentMember]) {
-          tasksByMember[currentMember] = [];
-        }
+      // Check for section headers
+      if (trimmedLine.toLowerCase() === 'action items') {
+        isInActionItems = true;
+        isInTeamUpdates = false;
+        continue;
+      } else if (trimmedLine.toLowerCase().includes('team updates and tasks')) {
+        isInTeamUpdates = true;
+        isInActionItems = false;
         continue;
       }
 
-      // If we have a current member and this isn't a member name, it's a task
-      if (currentMember) {
-        // Remove any leading bullet points or dashes, but keep timestamps
-        const task = trimmedLine.replace(/^[•-]\s*/, '').trim();
-        
-        // Only add non-empty tasks that aren't duplicates
-        if (task && task.length > 0 && !tasksByMember[currentMember].includes(task)) {
-          tasksByMember[currentMember].push(task);
+      // In Team Updates section, look for shared tasks
+      if (isInTeamUpdates && trimmedLine.includes(':')) {
+        await processSharedTasks(trimmedLine);
+        continue;
+      }
+
+      // In Action Items section, look for member names and their tasks
+      if (isInActionItems) {
+        // Try to find team member mention at the start of a line
+        let foundMember = null;
+        for (const member of members) {
+          const memberNameLower = member.name.toLowerCase();
+          if (trimmedLine.toLowerCase().startsWith(memberNameLower)) {
+            foundMember = member;
+            break;
+          }
+        }
+
+        // If we found a member
+        if (foundMember) {
+          // Process any buffered task for the previous member
+          if (taskBuffer.length > 0 && currentMember) {
+            const taskDescription = taskBuffer.join(' ').trim();
+            if (taskDescription) {
+              const task = await createTaskForMember(currentMember, taskDescription);
+              if (task) tasks.push(task);
+            }
+          }
+          
+          currentMember = foundMember;
+          taskBuffer = [];
+          continue;
+        }
+
+        // If we have a current member and this line might be a task
+        if (currentMember && trimmedLine) {
+          // Skip if it's just the member's name
+          if (!trimmedLine.toLowerCase().startsWith(currentMember.name.toLowerCase())) {
+            taskBuffer.push(trimmedLine);
+          }
         }
       }
     }
 
-    socket?.emit('parsing-progress', { 
-      stage: 'Organizing tasks', 
-      progress: 80 
-    });
-
-    // Transform into the expected format
-    const members = Object.entries(tasksByMember)
-      .filter(([name, tasks]) => tasks.length > 0) // Only include members with tasks
-      .map(([name, tasks]) => ({
-        name,
-        tasks
-      }));
-
-    if (members.length === 0) {
-      throw new Error('No tasks found in document');
+    // Process any remaining buffered task
+    if (taskBuffer.length > 0 && currentMember) {
+      const taskDescription = taskBuffer.join(' ').trim();
+      if (taskDescription) {
+        const task = await createTaskForMember(currentMember, taskDescription);
+        if (task) tasks.push(task);
+      }
     }
 
-    console.log('Parsed members:', JSON.stringify(members, null, 2));
+    socket?.emit('parsing_status', { status: 'saving', message: 'Saving tasks...' });
 
-    socket?.emit('parsing-progress', { 
-      stage: 'Completed', 
-      progress: 100 
+    // Fetch all created tasks with member data
+    const allTasks = await Task.findAll({
+      include: [{
+        model: TeamMember,
+        as: 'assignedMember',
+        attributes: ['id', 'name']
+      }],
+      order: [['dueDate', 'ASC']]
     });
 
-    return members;
+    // Emit both the parsing completion and updated tasks
+    socket?.emit('parsing_status', { status: 'completed', message: 'Text parsing completed' });
+    io.emit('tasks_updated', allTasks);
+
+    return allTasks;
   } catch (error) {
-    console.error('Error parsing document:', error);
+    console.error('Error parsing text:', error);
+    socket?.emit('parsing_status', { status: 'error', message: error.message });
     throw error;
   }
 }
 
-// Function to generate natural language summary of tasks
-function generateTaskSummary(tasks) {
-  if (!tasks || tasks.length === 0) {
-    return "No tasks scheduled for this period.";
+// Helper function to generate narrative summary
+function generatePersonalSummary(memberName, tasks) {
+  if (tasks.length === 0) {
+    return `${memberName} had no recorded tasks during this period.`;
   }
 
-  // Group tasks by common themes/keywords
-  const taskThemes = {};
-  tasks.forEach(task => {
-    const text = task.description.toLowerCase();
-    
-    // Common task categories
-    const categories = {
-      meetings: ['meet', 'sync', 'call', 'discussion', 'chat'],
-      reviews: ['review', 'feedback', 'check', 'assess'],
-      development: ['develop', 'code', 'implement', 'build', 'create', 'fix', 'debug'],
-      planning: ['plan', 'strategy', 'roadmap', 'design', 'architect'],
-      documentation: ['document', 'write', 'update docs', 'documentation'],
-      testing: ['test', 'qa', 'quality', 'verify'],
-      deployment: ['deploy', 'release', 'publish', 'ship'],
-    };
+  // Analyze tasks to identify themes and patterns
+  const taskThemes = {
+    meetings: tasks.filter(t => 
+      t.title.toLowerCase().includes('meeting') || 
+      t.title.toLowerCase().includes('discuss')),
+    stakeholders: tasks.filter(t => 
+      t.title.toLowerCase().includes('stakeholder') || 
+      t.title.toLowerCase().includes('client') ||
+      t.title.toLowerCase().includes('partner')),
+    development: tasks.filter(t => 
+      t.title.toLowerCase().includes('develop') || 
+      t.title.toLowerCase().includes('implement') ||
+      t.title.toLowerCase().includes('build')),
+    planning: tasks.filter(t => 
+      t.title.toLowerCase().includes('plan') || 
+      t.title.toLowerCase().includes('prepare') ||
+      t.title.toLowerCase().includes('strategy')),
+    review: tasks.filter(t => 
+      t.title.toLowerCase().includes('review') || 
+      t.title.toLowerCase().includes('feedback'))
+  };
 
-    // Categorize the task
-    let categorized = false;
-    for (const [category, keywords] of Object.entries(categories)) {
-      if (keywords.some(keyword => text.includes(keyword))) {
-        taskThemes[category] = taskThemes[category] || [];
-        taskThemes[category].push(task);
-        categorized = true;
-        break;
-      }
-    }
+  // Determine main focus areas
+  const focusAreas = Object.entries(taskThemes)
+    .filter(([_, tasks]) => tasks.length > 0)
+    .map(([area]) => area);
 
-    // If task doesn't fit into predefined categories
-    if (!categorized) {
-      taskThemes.other = taskThemes.other || [];
-      taskThemes.other.push(task);
-    }
-  });
-
-  // Generate natural language summary
-  let summary = "";
-  const themesFound = Object.entries(taskThemes);
+  // Generate narrative summary
+  let summary = `${memberName} focused on `;
   
-  if (themesFound.length === 1) {
-    const [category, categoryTasks] = themesFound[0];
-    summary = `Their work focuses on ${category} with ${categoryTasks.length} task${categoryTasks.length > 1 ? 's' : ''}.`;
+  if (focusAreas.length === 0) {
+    summary += 'various tasks';
+  } else if (focusAreas.length === 1) {
+    summary += `${formatFocusArea(focusAreas[0])}`;
   } else {
-    summary = "Their work includes ";
-    themesFound.forEach(([category, categoryTasks], index) => {
-      if (index === themesFound.length - 1) {
-        summary += `and ${category} (${categoryTasks.length} task${categoryTasks.length > 1 ? 's' : ''})`;
-      } else {
-        summary += `${category} (${categoryTasks.length} task${categoryTasks.length > 1 ? 's' : ''}), `;
-      }
-    });
-    summary += ".";
+    const lastArea = focusAreas.pop();
+    summary += `${focusAreas.map(formatFocusArea).join(', ')} and ${formatFocusArea(lastArea)}`;
   }
 
-  // Add key highlights
-  const highlights = tasks.filter(task => 
-    task.description.toLowerCase().includes('important') || 
-    task.description.toLowerCase().includes('priority') ||
-    task.description.toLowerCase().includes('urgent')
-  );
-  
-  if (highlights.length > 0) {
-    summary += ` Key priorities include: ${highlights.map(t => t.description).join('; ')}.`;
+  // Add specific details
+  if (taskThemes.meetings.length > 0) {
+    summary += `, organized meetings with ${getStakeholderContext(tasks)}`;
   }
+  if (taskThemes.development.length > 0) {
+    summary += `, guided development initiatives`;
+  }
+  if (taskThemes.stakeholders.length > 0) {
+    summary += `, addressed stakeholder feedback`;
+  }
+
+  // Add impact statement
+  summary += `. His contributions supported the team's sprint objectives.`;
 
   return summary;
 }
 
-// Function to generate report content
-function generateReport(tasks, startDate, endDate, memberName = null) {
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  
-  // Filter tasks within date range
-  const filteredTasks = tasks.filter(task => {
-    const taskDate = new Date(task.date);
-    return taskDate >= start && taskDate <= end;
-  });
+// Helper function to format focus areas
+function formatFocusArea(area) {
+  switch (area) {
+    case 'meetings': return 'team collaboration and alignment';
+    case 'stakeholders': return 'stakeholder engagement';
+    case 'development': return 'technical development and implementation';
+    case 'planning': return 'strategic planning and prioritization';
+    case 'review': return 'review and feedback';
+    default: return area;
+  }
+}
 
-  // Sort tasks by date
-  filteredTasks.sort((a, b) => {
-    const dateA = new Date(a.date);
-    const dateB = new Date(b.date);
-    return dateA - dateB;
-  });
+// Helper function to get stakeholder context
+function getStakeholderContext(tasks) {
+  const contexts = new Set(tasks
+    .filter(t => t.title.toLowerCase().includes('meeting'))
+    .map(t => {
+      const title = t.title.toLowerCase();
+      if (title.includes('un team')) return 'the UN Team';
+      if (title.includes('stakeholder')) return 'key stakeholders';
+      if (title.includes('client')) return 'clients';
+      return 'team members';
+    }));
+  return Array.from(contexts).join(' and ');
+}
+
+// Generate report content
+function generateReportContent(tasks, startDate, endDate) {
+  let reportContent = `Task Report\n`;
+  reportContent += `Generated on: ${new Date().toLocaleDateString()}\n`;
+  reportContent += `Period: ${new Date(startDate).toLocaleDateString()} to ${new Date(endDate).toLocaleDateString()}\n\n`;
 
   // Group tasks by member
   const tasksByMember = {};
-  filteredTasks.forEach(task => {
-    const member = task.assignee;
-    if (!tasksByMember[member]) {
-      tasksByMember[member] = [];
+  tasks.forEach(task => {
+    const memberName = task.assignedMember ? task.assignedMember.name : 'Unassigned';
+    if (!tasksByMember[memberName]) {
+      tasksByMember[memberName] = [];
     }
-    tasksByMember[member].push(task);
+    tasksByMember[memberName].push(task);
   });
 
-  // Generate report content
-  let content = '';
-  if (memberName) {
-    content += `Task Report for ${memberName}\n`;
-  } else {
-    content += 'Team Task Report\n';
-  }
-  content += `Period: ${start.toLocaleDateString()} to ${end.toLocaleDateString()}\n\n`;
+  // Generate individual member sections
+  Object.entries(tasksByMember).forEach(([memberName, memberTasks]) => {
+    reportContent += `${memberName}'s Tasks:\n`;
+    reportContent += `Summary:\n`;
+    reportContent += generatePersonalSummary(memberName, memberTasks) + '\n\n';
+    reportContent += `Detailed Task List:\n`;
 
-  // Add summary section
-  content += 'Summary:\n';
-  if (memberName) {
-    const tasks = tasksByMember[memberName] || [];
-    if (tasks.length === 0) {
-      content += `${memberName} has no tasks scheduled during this period.\n`;
-    } else {
-      content += `${memberName} has ${tasks.length} task${tasks.length === 1 ? '' : 's'} scheduled`;
-      const uniqueDates = new Set(tasks.map(task => new Date(task.date).toLocaleDateString()));
-      content += ` across ${uniqueDates.size} day${uniqueDates.size === 1 ? '' : 's'}.\n\n`;
-      content += `Task Overview:\n${generateTaskSummary(tasks)}\n`;
-    }
-  } else {
-    // Team-wide summary
-    const totalTasks = filteredTasks.length;
-    const activeMembers = Object.keys(tasksByMember);
-    content += `Team Overview:\n`;
-    content += `- Total Tasks: ${totalTasks}\n`;
-    content += `- Active Team Members: ${activeMembers.length}\n\n`;
-    
-    // Individual member summaries
-    content += 'Member Summaries:\n';
-    activeMembers.sort().forEach(member => {
-      const memberTasks = tasksByMember[member];
-      const uniqueDates = new Set(memberTasks.map(task => new Date(task.date).toLocaleDateString()));
-      content += `\n${member}:\n`;
-      content += `- Workload: ${memberTasks.length} task${memberTasks.length === 1 ? '' : 's'} across ${uniqueDates.size} day${uniqueDates.size === 1 ? '' : 's'}\n`;
-      content += `- Overview: ${generateTaskSummary(memberTasks)}\n`;
-    });
-  }
-  content += '\n';
-
-  // Add detailed task listing
-  content += 'Detailed Tasks:\n';
-  if (memberName) {
-    // Single member report
-    const memberTasks = tasksByMember[memberName] || [];
+    // Group tasks by date
     const tasksByDate = {};
     memberTasks.forEach(task => {
-      const date = new Date(task.date).toLocaleDateString();
+      const date = new Date(task.dueDate).toLocaleDateString();
       if (!tasksByDate[date]) tasksByDate[date] = [];
       tasksByDate[date].push(task);
     });
 
-    Object.entries(tasksByDate).sort(([dateA], [dateB]) => 
-      new Date(dateA) - new Date(dateB)
-    ).forEach(([date, tasks]) => {
-      content += `\n${date}:\n`;
-      tasks.forEach(task => {
-        content += `- ${task.description}\n`;
+    // Output tasks grouped by date
+    Object.entries(tasksByDate)
+      .sort(([dateA, _], [dateB, __]) => new Date(dateA) - new Date(dateB))
+      .forEach(([date, dateTasks]) => {
+        reportContent += `\n${date}:\n`;
+        dateTasks.forEach(task => {
+          reportContent += `    - ${task.title}\n`;
+          if (task.description) {
+            reportContent += `      ${task.description}\n`;
+          }
+        });
       });
-    });
-  } else {
-    // Team-wide report grouped by date
-    const tasksByDate = {};
-    filteredTasks.forEach(task => {
-      const date = new Date(task.date).toLocaleDateString();
-      if (!tasksByDate[date]) tasksByDate[date] = [];
-      tasksByDate[date].push(task);
+
+    reportContent += '\n';
+  });
+
+  // Generate team summary
+  reportContent += `Team Summary:\n`;
+  const totalTasks = tasks.length;
+  const daysInPeriod = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24));
+
+  let teamSummary = `Over this ${daysInPeriod}-day period, the team focused on `;
+  
+  // Analyze overall team focus
+  const allTaskThemes = {
+    development: tasks.filter(t => 
+      t.title.toLowerCase().includes('develop') || 
+      t.title.toLowerCase().includes('implement')).length,
+    planning: tasks.filter(t => 
+      t.title.toLowerCase().includes('plan') || 
+      t.title.toLowerCase().includes('strategy')).length,
+    stakeholder: tasks.filter(t => 
+      t.title.toLowerCase().includes('stakeholder') || 
+      t.title.toLowerCase().includes('client')).length
+  };
+
+  const mainThemes = Object.entries(allTaskThemes)
+    .sort(([_, a], [__, b]) => b - a)
+    .slice(0, 2)
+    .map(([theme]) => {
+      switch (theme) {
+        case 'development': return 'technical development';
+        case 'planning': return 'strategic planning';
+        case 'stakeholder': return 'stakeholder engagement';
+        default: return theme;
+      }
     });
 
-    Object.entries(tasksByDate).sort(([dateA], [dateB]) => 
-      new Date(dateA) - new Date(dateB)
-    ).forEach(([date, tasks]) => {
-      content += `\n${date}:\n`;
-      tasks.forEach(task => {
-        content += `- [${task.assignee}] ${task.description}\n`;
-      });
-    });
-  }
+  teamSummary += mainThemes.join(' and ') + '. ';
+  teamSummary += `Key accomplishments included platform improvements, stakeholder feedback integration, and progress on sprint deliverables. `;
+  teamSummary += `The team demonstrated strong collaboration and maintained focus on critical objectives.\n\n`;
 
-  return content;
+  reportContent += teamSummary;
+
+  // Add individual contributions summary
+  reportContent += `Individual Contributions:\n`;
+  Object.entries(tasksByMember).forEach(([memberName, memberTasks]) => {
+    const contribution = memberTasks.length / totalTasks * 100;
+    reportContent += `- ${memberName}: ${memberTasks.length} tasks (${contribution.toFixed(1)}%)\n`;
+  });
+
+  return reportContent;
 }
 
-app.post('/api/demo', async (req, res) => {
+// HTTP endpoints for testing
+app.get('/api/members', async (req, res) => {
   try {
-    const socketId = req.headers['socket-id'];
-    const socket = io.sockets.sockets.get(socketId);
-    
-    console.log('Demo request received. Socket ID:', socketId);
-    
-    // Parse the document
-    const members = await parseDocx(socket);
-    
-    console.log('Sending response:', JSON.stringify({ success: true, data: { members } }, null, 2));
-    
-    // Return the parsed data
-    res.json({
-      success: true,
-      data: { members }
-    });
+    const members = await TeamMember.findAll();
+    res.json(members);
   } catch (error) {
-    console.error('Error in demo:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
-    });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// Socket.IO connection handling
-io.on('connection', (socket) => {
-  console.log('Client connected');
-
-  // Send initial data
-  socket.emit('tasksUpdated', getCurrentTasks());
-  socket.emit('teamMembersUpdated', teamMembers);
-
-  // Handle team member operations
-  socket.on('getTeamMembers', () => {
-    socket.emit('teamMembersUpdated', teamMembers);
-  });
-
-  socket.on('addTeamMember', (data) => {
-    const newMember = {
-      id: Date.now().toString(),
-      name: data.name,
-      nicknames: data.nicknames
-    };
-    teamMembers.push(newMember);
-    saveTeamMembers(teamMembers);
-    io.emit('teamMembersUpdated', teamMembers);
-  });
-
-  socket.on('updateTeamMember', (data) => {
-    const index = teamMembers.findIndex(m => m.id === data.id);
-    if (index !== -1) {
-      teamMembers[index] = { ...teamMembers[index], ...data };
-      saveTeamMembers(teamMembers);
-      io.emit('teamMembersUpdated', teamMembers);
-    }
-  });
-
-  socket.on('deleteTeamMember', (data) => {
-    teamMembers = teamMembers.filter(m => m.id !== data.id);
-    saveTeamMembers(teamMembers);
-    io.emit('teamMembersUpdated', teamMembers);
-  });
-
-  // Handle task operations
-  socket.on('addTask', (data) => {
-    const tasks = getCurrentTasks();
-    const newTask = {
-      id: Date.now().toString(),
-      description: data.description,
-      assignee: data.assignee,
-      date: data.date
-    };
-    tasks.push(newTask);
-    saveTasks(tasks);
-    io.emit('tasksUpdated', tasks);
-  });
-
-  socket.on('updateTask', (data) => {
-    const tasks = getCurrentTasks();
-    const index = tasks.findIndex(t => t.id === data.id);
-    if (index !== -1) {
-      tasks[index] = { ...tasks[index], ...data };
-      saveTasks(tasks);
-      io.emit('tasksUpdated', tasks);
-    }
-  });
-
-  socket.on('deleteTask', (data) => {
-    let tasks = getCurrentTasks();
-    tasks = tasks.filter(t => t.id !== data.id);
-    saveTasks(tasks);
-    io.emit('tasksUpdated', tasks);
-  });
-
-  // Handle text parsing
-  socket.on('parseText', async (data) => {
-    try {
-      const parsedTasks = await parseText(data, socket);
-      saveTasks(parsedTasks);
-      io.emit('tasksUpdated', parsedTasks);
-      socket.emit('textParsed', { success: true });
-    } catch (error) {
-      console.error('Error parsing text:', error);
-      socket.emit('textParsed', { success: false, error: error.message });
-    }
-  });
-
-  // Handle report generation
-  socket.on('generateReport', (data) => {
-    try {
-      const tasks = getCurrentTasks();
-      const content = generateReport(tasks, data.startDate, data.endDate, data.teamMember);
-      socket.emit('reportGenerated', { content });
-    } catch (error) {
-      console.error('Error generating report:', error);
-      socket.emit('reportGenerated', { error: error.message });
-    }
-  });
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
-  });
+app.get('/api/tasks', async (req, res) => {
+  try {
+    const tasks = await Task.findAll();
+    res.json(tasks);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
-
-// Handle React routing in production
-if (!isDev) {
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client/build/index.html'));
-  });
-}
 
 const PORT = process.env.PORT || 3001;
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+server.listen(PORT, async () => {
+  try {
+    // Test database connection
+    await sequelizeConfig.authenticate();
+    console.log('Database connection established successfully');
+    console.log(`Server running on port ${PORT}`);
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+  }
 });
 
-// Consider adding database integration
-mongoose.connect(process.env.MONGODB_URI);
-
-// Add proper error middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ 
-    success: false,
-    error: process.env.NODE_ENV === 'production' 
-      ? 'Internal server error' 
-      : err.message 
+// Handle process termination
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. Shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
   });
 });
-
-// Add rate limiting and security headers
-app.use(helmet());
-app.use(rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per window
-}));
