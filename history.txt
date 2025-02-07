@@ -1,0 +1,63 @@
+# Deployment History
+
+## Initial Setup - [Current Date]
+1. Created base Terraform configuration
+   - main.tf: Main Terraform configuration
+   - variables.tf: Variable definitions
+   - modules/vpc: VPC module for networking
+   - modules/ecr: ECR module for container registries
+   - Fixed ECR module variable definitions and formatting
+   - Added ECS module variables and outputs
+   - Added VPC module variables and outputs
+   - Added IAM roles and policies for ECS tasks
+   - Created CloudWatch log groups for containers
+   - Added ECR authentication to Docker module
+   - Fixed Docker build and push configuration
+   - Added Docker build optimizations and cleanup
+   - Simplified Docker build process using direct commands
+   - Added nginx configuration for frontend container
+   - Fixed Docker build context and paths
+   - Added missing frontend dependencies
+   - Simplified Docker build configuration
+   - Fixed frontend Docker build context and working directory
+   - Updated Dockerfile to use correct paths and caching
+   - Added ALB DNS outputs for easy access
+   - Added ECS services for frontend and backend
+   - Created security group for ECS tasks
+   - Configured service discovery with ALB
+   - Cleaned up ECS module subnet variables
+   - Standardized subnet variable naming in ECS module
+   - Fixed ALB security group output
+   - Removed incorrect network configuration from task definitions
+   - Fixed ALB security group reference in main configuration
+   - Synchronized container image tags between ECR and ECS
+   - Added service discovery for backend service
+   - Updated nginx configuration with dynamic backend URL
+   - Fixed nginx environment variable substitution
+   - Added nginx configuration template support
+   - Fixed CloudWatch logs retrieval in troubleshooting script
+   - Added setup-backend.sh for S3 backend configuration
+   - Created backend.tf for state management
+   - Added automatic .env variable loading to setup script
+   - Added terraform.tfvars generation for database configuration
+   - Added comprehensive .gitignore patterns
+
+2. Added Docker configuration
+   - Created Dockerfile.backend for Node.js server
+   - Created Dockerfile.frontend for React client
+   - Added build scripts for Docker images
+   - Added ECR push configuration
+
+3. Infrastructure Components
+   - VPC with public and private subnets
+   - ECR repositories for frontend and backend
+   - ECS cluster configuration with Fargate tasks
+   - ALB setup with target groups for frontend and backend
+   - Security groups for ALB and ECS tasks
+   - IAM roles for ECS execution and tasks
+
+4. Next Steps
+   - Set up auto-scaling policies
+   - Add CloudWatch alarms
+   - Set up CI/CD pipeline
+   - Configure monitoring and logging 
