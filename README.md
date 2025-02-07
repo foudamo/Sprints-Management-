@@ -48,7 +48,7 @@ git --version
    # Or simply run (if package.json is up to date)
    npm install
    ```
-
+#THIS SECTION IS NOT NEEDED
 4. **Environment Setup**
    - Create a `.env` file in the root directory for backend:
      ```
