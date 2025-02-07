@@ -133,7 +133,7 @@ const TeamMembers = ({ socket, members: propMembers }) => {
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h6">Team Members ({members.length})</Typography>
+        <Typography variant="h6">Size of Team ({members.length})</Typography>
         <Button
           variant="contained"
           color="primary"

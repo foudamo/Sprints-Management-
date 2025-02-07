@@ -25,7 +25,8 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import PeopleIcon from '@mui/icons-material/People';
-import SettingsIcon from '@mui/icons-material/Settings';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { io } from 'socket.io-client';
 import { format } from 'date-fns';
 import Calendar from './components/Calendar';
@@ -38,6 +39,8 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import GroupIcon from '@mui/icons-material/Group';
+import ReactMarkdown from 'react-markdown';
+import './styles/markdown.css';
 
 const BACKEND_URL = process.env.NODE_ENV === 'production' 
   ? 'https://your-production-url.com' 
@@ -54,6 +57,7 @@ function App() {
   const [connectionError, setConnectionError] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [memberInput, setMemberInput] = useState('');
+  const [helpDialogOpen, setHelpDialogOpen] = useState(false);
 
   useEffect(() => {
     // First try to fetch members via HTTP
@@ -284,15 +288,21 @@ function App() {
               <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                 Sprints Task Manager
               </Typography>
+              <IconButton
+                color="inherit"
+                onClick={() => setHelpDialogOpen(true)}
+                sx={{ ml: 1 }}
+              >
+                <HelpOutlineIcon />
+              </IconButton>
               <IconButton color="inherit" onClick={() => setShowTeamMembers(true)}>
                 <PeopleIcon />
               </IconButton>
               <IconButton 
                 color="inherit" 
                 onClick={() => setShowReportDialog(true)}
-                sx={{ ml: 1 }}
               >
-                <SettingsIcon />
+                <AssessmentIcon />
               </IconButton>
             </Toolbar>
           </AppBar>
@@ -356,6 +366,79 @@ function App() {
             tasks={tasks}
             members={members}
           />
+
+          <Dialog
+            open={helpDialogOpen}
+            onClose={() => setHelpDialogOpen(false)}
+            maxWidth="md"
+            fullWidth
+          >
+            <DialogTitle>How to Use Sprint Task Manager</DialogTitle>
+            <DialogContent>
+              <Box sx={{ p: 2 }}>
+                <div className="markdown-content">
+                  <ReactMarkdown>
+                    {`# Sprints Task Manager - User Guide
+
+The Sprints Task Manager is a collaborative task management tool designed to help teams track and manage their daily tasks and sprints effectively.
+
+## Calendar View
+
+![Calendar View](../assets/calendar-view.png)
+
+The Calendar View provides a monthly overview of your team's schedule:
+- Navigate between months using the arrow buttons
+- The current day is highlighted in green
+- Days with tasks are marked with purple indicators
+- Click on any day to view or manage tasks for that specific date
+
+## Team Members Management
+
+![Team Members](../assets/team-members.png)
+
+The Team Members panel allows you to:
+- View all team members and their roles
+- Add new team members using the "ADD MEMBER" button
+- Edit member information using the pencil icon
+- Remove members using the trash icon
+- Each member has their role and abbreviation displayed below their name
+
+## Report Generation
+
+![Generate Report](../assets/report-generation.png)
+
+Generate custom reports for your team:
+1. Select team members from the dropdown (or choose "All Team Members")
+2. Set the start date for your report period
+3. Set the end date for your report period
+4. Click "GENERATE REPORT" to create the report
+5. Use "CLOSE" to exit the report generation window
+
+## Daily Task View
+
+![Daily Tasks Overview](../assets/tasks-view.png)
+
+The Daily Task View shows:
+- Tasks organized by team member
+- Each member has their own card showing assigned tasks
+- "No tasks assigned" is displayed when a member has no tasks for the day
+- Use "ADD TASK" to create new tasks
+- "PARSE TEXT" feature available for bulk task creation
+
+## Task Management
+
+![Task Details](../assets/tasks-details.png)
+
+Managing individual tasks:
+- Each task displays a title and description`}
+                  </ReactMarkdown>
+                </div>
+              </Box>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setHelpDialogOpen(false)}>Close</Button>
+            </DialogActions>
+          </Dialog>
 
           <Footer />
         </Box>

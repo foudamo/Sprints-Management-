@@ -5,6 +5,8 @@ const { Server } = require('socket.io');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const fs = require('fs');
+const marked = require('marked');
 const { v4: uuidv4 } = require('uuid');
 const { Sequelize } = require('sequelize');
 const { sequelize, initModels } = require('./db');
@@ -39,6 +41,9 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
+// Serve static files from assets directory
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
+
 const isDev = process.env.NODE_ENV !== 'production';
 
 // Initialize models
@@ -55,6 +60,53 @@ app.use(limiter);
 if (!isDev) {
   app.use(express.static(path.join(__dirname, 'client/build')));
 }
+
+// Serve markdown files from docs directory
+app.get('/docs/:file', (req, res) => {
+  const filePath = path.join(__dirname, 'docs', req.params.file);
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      res.status(404).send('File not found');
+      return;
+    }
+    const html = marked.parse(data);
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <title>How to Guide</title>
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+              line-height: 1.6;
+              padding: 20px;
+              max-width: 800px;
+              margin: 0 auto;
+            }
+            img {
+              max-width: 100%;
+              height: auto;
+              border-radius: 8px;
+              margin: 20px 0;
+            }
+            h1, h2 {
+              color: #5c4c8c;
+            }
+            code {
+              background: #f4f4f4;
+              padding: 2px 5px;
+              border-radius: 3px;
+            }
+          </style>
+        </head>
+        <body>
+          ${html}
+        </body>
+      </html>
+    `);
+  });
+});
 
 // Global error handlers
 process.on('uncaughtException', (error) => {
