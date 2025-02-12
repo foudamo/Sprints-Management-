@@ -4,18 +4,18 @@ variable "app_name" {
 }
 
 variable "environment" {
-  description = "Environment name"
-  type        = string
-}
-
-variable "vpc_id" {
-  description = "VPC ID"
+  description = "Environment (e.g., dev, prod)"
   type        = string
 }
 
 variable "private_subnet_ids" {
   description = "List of private subnet IDs"
   type        = list(string)
+}
+
+variable "vpc_id" {
+  description = "VPC ID where resources will be created"
+  type        = string
 }
 
 variable "backend_ecr_repo_url" {
@@ -75,16 +75,27 @@ variable "frontend_memory" {
 }
 
 variable "frontend_target_group_arn" {
-  description = "Frontend target group ARN"
+  description = "ARN of the frontend target group"
   type        = string
 }
 
 variable "backend_target_group_arn" {
-  description = "Backend target group ARN"
+  description = "ARN of the backend target group"
   type        = string
 }
 
 variable "alb_security_group_id" {
   description = "Security group ID of the ALB"
   type        = string
+}
+
+variable "alb_dns_name" {
+  description = "DNS name of the Application Load Balancer"
+  type        = string
+}
+
+variable "service_discovery_namespace" {
+  description = "Service discovery namespace for internal service communication"
+  type        = string
+  default     = "sprints-management"
 } 

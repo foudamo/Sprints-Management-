@@ -41,6 +41,70 @@
    - Added automatic .env variable loading to setup script
    - Added terraform.tfvars generation for database configuration
    - Added comprehensive .gitignore patterns
+   - Fixed frontend-backend communication and service discovery
+   - Added VPC data source for security group configuration
+   - Added comprehensive service testing to troubleshooting script
+   - Fixed ALB target group health check configuration
+   - Fixed ECS service deployment configuration
+   - Added backend health check endpoint and fixed routing
+   - Added comprehensive debugging and logging capabilities
+   - Fixed ALB listener configuration for frontend and backend routing
+   - Enhanced system monitoring and troubleshooting capabilities
+   - Added improved error handling and request tracing
+   - Fixed ECS execute command and troubleshooting script
+   - Added task definition execute command support
+   - Moved task definitions to dedicated file
+   - Fixed task definition variable references and added missing configurations
+   - Moved execute command configuration to service level
+   - Fixed troubleshooting script commands and added API endpoints
+   - Fixed frontend-backend connectivity and proxy configuration
+   - Fixed Docker ECR authentication and build process
+   - Added missing AWS region data source to Docker module
+   - Added missing variable declarations to Docker module
+   - Cleaned up duplicate variables in Docker module
+   - Fixed troubleshooting script commands and ALB routing
+   - Fixed backend service health check and container definition
+   - Improved troubleshooting script reliability
+   - Fixed frontend-backend communication with proper CORS and proxy settings
+   - Fixed ALB routing and health check paths
+   - Updated backend API endpoints and response handling
+   - Simplified backend routing by removing /api prefix internally
+   - Fixed nginx proxy configuration and error handling
+   - Enhanced troubleshooting script with detailed ALB and service discovery checks
+   - Added direct backend endpoint testing capabilities
+   - Fixed backend health checks and API routing
+   - Added support for both prefixed and non-prefixed API endpoints
+   - Updated ALB target group configuration for better health checks
+   - Fixed backend service security group rules
+   - Updated backend service configuration for better health checks
+   - Enhanced backend task definition with improved container settings
+   - Added detailed backend logging and request tracing
+   - Enhanced error handling and debugging information
+   - Fixed backend URL path handling and health checks
+   - Updated ALB routing to handle both /api and /health paths
+   - Improved backend container configuration
+   - Added comprehensive request/response debugging
+   - Enhanced error tracking and process monitoring
+   - Added detailed timing and route debugging
+   - Fixed middleware order and request handling
+   - Updated ALB health check configuration
+   - Enhanced container startup and metadata
+   - Added comprehensive nginx debugging
+   - Enhanced health check debugging and metadata
+   - Added container and task information to logs
+   - Improved error tracking and request tracing
+   - Added force deployment and task replacement
+   - Updated ECS service configuration for zero-downtime deployments
+   - Added deployment circuit breaker and rollback settings
+   - Enhanced backend debugging with additional environment variables
+   - Added detailed nginx error tracking and request debugging
+   - Improved CloudWatch logging configuration
+   - Added frontend health checks and debugging headers
+   - Enhanced frontend-backend communication
+   - Added comprehensive request logging
+   - Improved error handling and debugging
+   - Updated CORS configuration
+   - Added request/response interceptors for debugging
 
 2. Added Docker configuration
    - Created Dockerfile.backend for Node.js server
@@ -61,3 +125,140 @@
    - Add CloudWatch alarms
    - Set up CI/CD pipeline
    - Configure monitoring and logging 
+
+# Troubleshooting History - Frontend/Backend Communication Issues
+
+## Issue Description
+Frontend and backend services are not communicating properly despite multiple configuration attempts.
+
+## Key Symptoms
+1. Frontend can serve static content but API requests fail
+2. Backend health checks failing with 404s
+3. ALB target group health checks failing
+4. Service discovery DNS resolution failing
+
+## Configuration Changes Made
+
+### 1. ALB Configuration
+- Renamed frontend listener to http listener for clarity
+- Configured proper routing rules:
+  - Priority 100: /api/* and /health/* routes to backend
+  - Priority 200: /* routes to frontend
+- Added proper health check paths
+
+### 2. Nginx Configuration
+- Added proper root and index directives
+- Configured /health endpoint to return 200
+- Updated API proxy to use service discovery DNS
+- Added proper proxy headers
+- Added CORS headers
+
+### 3. Backend Configuration
+- Simplified URL handling (removed URL rewriting)
+- Added explicit health check endpoint
+- Improved error handling and logging
+
+### 4. Service Discovery
+- Using proper service discovery DNS format:
+  sprints-management-backend-service-dev.sprints-management:3001
+
+### 5. Frontend Configuration
+- Changed API_URL to relative path (/api)
+- Let nginx handle the proxying
+
+### 6. Infrastructure Issues Encountered
+- AWS DNS resolution failures:
+  ```
+  Error: fetching Availability Zones: operation error EC2: DescribeAvailabilityZones
+  lookup ec2.us-east-1.amazonaws.com: no such host
+  ```
+- Root cause: DNS resolution failing for AWS service endpoints
+- Impact: Unable to apply infrastructure changes
+
+### 7. Infrastructure Fixes Required
+- Verify AWS CLI configuration and credentials
+- Check network connectivity to AWS endpoints
+- Ensure DNS resolution is working properly
+- Verify VPC DNS settings:
+  ```hcl
+  resource "aws_vpc" "main" {
+    enable_dns_hostnames = true
+    enable_dns_support   = true
+  }
+  ```
+
+## Lessons Learned
+1. URL rewriting should be minimal and consistent
+2. Health checks need explicit endpoints
+3. Service discovery DNS is crucial for container communication
+4. Proper ALB routing rules priority is important
+5. CORS headers needed on both nginx and backend
+6. Relative URLs are better for frontend/backend communication
+7. Infrastructure changes require proper DNS resolution
+8. VPC DNS settings are crucial for service discovery
+
+## Next Steps
+0. Fix AWS endpoint DNS resolution issues:
+   - Check local DNS settings
+   - Verify AWS CLI configuration
+   - Test connectivity to AWS endpoints
+1. Verify service discovery DNS resolution
+2. Check container security groups allow communication
+3. Verify ECS task IAM roles have proper permissions
+4. Monitor CloudWatch logs for both services
+5. Test API endpoints directly from within containers
+
+## Related Issues
+- Health check failures (#123)
+- DNS resolution errors (#124)
+- CORS issues (#125)
+- API routing problems (#126)
+- AWS endpoint DNS resolution (#127)
+- VPC DNS configuration (#128) 
+
+## Critical Fix - [Current Date]
+1. Fixed service discovery DNS naming convention
+2. Corrected health check paths for both services
+3. Fixed nginx path rewriting logic
+4. Added explicit HTTP protocol declaration
+5. Simplified frontend health check configuration
+6. Added root-level service discovery namespace variable
+7. Ensured consistent service discovery configuration
+8. Removed prevent_destroy from service discovery service
+9. Simplified service discovery naming across configurations
+10. Added lifecycle ignore_changes to prevent service discovery deletion issues
+11. Improved ECS service and service discovery interaction
+12. Added explicit cleanup mechanism for service discovery resources
+13. Implemented more robust service discovery lifecycle management
+14. Created comprehensive service discovery cleanup script
+15. Added advanced instance deregistration logic
+16. Added missing Dockerfiles for frontend and backend
+17. Enhanced service discovery cleanup mechanism
+18. Added explicit health check endpoints for frontend and backend
+19. Updated Nginx configuration to support health checks
+20. Improved container health check mechanisms
+21. Added explicit health check files for frontend and backend
+22. Updated Nginx configuration to serve health check endpoint
+23. Improved container health check mechanisms
+24. Enhanced frontend health check mechanism
+25. Added explicit file and endpoint health checks
+26. Improved Nginx configuration for health checks
+27. Added verbose logging for health check debugging 
+28. Added comprehensive health check debugging script
+29. Enhanced file permission and visibility diagnostics
+30. Implemented verbose logging for health check troubleshooting 
+31. Enhanced database connection reliability
+32. Added comprehensive backend health checks
+33. Improved error handling and logging
+34. Added database connection testing
+35. Implemented diagnostic test suite 
+36. Enhanced frontend-backend communication
+37. Added comprehensive request logging
+38. Improved error handling and debugging
+39. Updated CORS configuration
+40. Added request/response interceptors for debugging
+41. Simplified health check configuration
+42. Removed file-based health check dependency
+43. Enhanced ALB target group configuration
+44. Updated container health check settings
+45. Improved nginx configuration reliability 

@@ -1,14 +1,42 @@
 const { sequelize, TeamMember, Task } = require('../db');
+const debug = require('debug')('app:db-check');
+const debugError = require('debug')('app:db-check:error');
 
 async function checkDatabase() {
   try {
+    debug('Starting database checks...');
+    const start = Date.now();
+
     // Test connection
     await sequelize.authenticate();
-    console.log('Database connection successful');
+    debug('Database connection successful in', Date.now() - start, 'ms');
 
     // Check tables
     const tables = await sequelize.getQueryInterface().showAllTables();
-    console.log('\nExisting tables:', tables);
+    debug('Tables found:', tables.length);
+    debug('Table names:', tables);
+
+    // Check table schemas
+    for (const table of tables) {
+      const describe = await sequelize.getQueryInterface().describeTable(table);
+      debug(`Schema for ${table}:`, describe);
+    }
+
+    // Check indexes
+    for (const table of tables) {
+      const indexes = await sequelize.getQueryInterface().showIndex(table);
+      debug(`Indexes for ${table}:`, indexes);
+    }
+
+    // Check constraints
+    for (const table of tables) {
+      const constraints = await sequelize.query(
+        `SELECT constraint_name, constraint_type 
+         FROM information_schema.table_constraints 
+         WHERE table_name = '${table}'`
+      );
+      debug(`Constraints for ${table}:`, constraints);
+    }
 
     // Check TeamMembers
     const teamMembers = await TeamMember.findAll();
@@ -30,12 +58,14 @@ async function checkDatabase() {
     });
 
     // Check indexes on Tasks table
-    const indexes = await sequelize.getQueryInterface().showIndex('Tasks');
-    console.log('\nIndexes on Tasks table:', indexes.map(idx => idx.name));
+    const tasksIndexes = await sequelize.getQueryInterface().showIndex('Tasks');
+    console.log('\nIndexes on Tasks table:', tasksIndexes.map(idx => idx.name));
 
     process.exit(0);
   } catch (error) {
-    console.error('Error:', error);
+    debugError('Database check failed:', error);
+    debugError('Stack trace:', error.stack);
+    debugError('Connection config:', sequelize.config);
     process.exit(1);
   }
 }

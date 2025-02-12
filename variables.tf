@@ -61,4 +61,10 @@ variable "db_port" {
   description = "Database port"
   type        = string
   default     = "5432"
+}
+
+variable "service_discovery_namespace" {
+  description = "Service discovery namespace for internal service communication"
+  type        = string
+  default     = "sprints-management"
 } 

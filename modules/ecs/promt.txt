@@ -1,0 +1,1 @@
+Make sure to keep learning and updating from history.txt. frontend and backend are STILL not communicating even after 60 different attempts at troubleshooting - try something new and different. Focus on fixing the communication between frontend and backend.

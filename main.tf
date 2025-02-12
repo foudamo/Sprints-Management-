@@ -37,10 +37,10 @@ module "ecs" {
   frontend_target_group_arn = module.alb.frontend_target_group_arn
   backend_target_group_arn  = module.alb.backend_target_group_arn
   alb_security_group_id     = module.alb.alb_security_group_id
+  alb_dns_name             = module.alb.alb_dns_name
   backend_ecr_repo_url     = module.ecr.backend_repository_url
   frontend_ecr_repo_url    = module.ecr.frontend_repository_url
-  backend_image_tag        = var.backend_image_tag
-  frontend_image_tag       = var.frontend_image_tag
+  service_discovery_namespace = var.service_discovery_namespace
   
   # Environment variables for containers
   backend_environment = {
@@ -54,7 +54,8 @@ module "ecs" {
   }
 
   frontend_environment = {
-    REACT_APP_API_URL = "https://api.${var.domain_name}"
+    REACT_APP_API_URL = "/api"
+    BACKEND_HOST      = "backend.${var.service_discovery_namespace}"
   }
 }
 
@@ -72,10 +73,10 @@ module "alb" {
 module "docker" {
   source = "./modules/docker"
 
-  aws_region       = var.aws_region
-  backend_ecr_url  = module.ecr.backend_repository_url
-  frontend_ecr_url = module.ecr.frontend_repository_url
-  image_tag        = var.environment
+  environment        = var.environment
+  backend_image_url  = module.ecr.backend_repository_url
+  frontend_image_url = module.ecr.frontend_repository_url
+  aws_region        = var.aws_region
   
   depends_on = [module.ecr]
 } 

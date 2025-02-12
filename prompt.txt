@@ -1,0 +1,1 @@
+@client @client @config @modules @scripts @server @server.js app still has issues. The server and client, also known as frontend and backend are still not communcating.

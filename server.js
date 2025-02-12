@@ -10,16 +10,60 @@ const marked = require('marked');
 const { v4: uuidv4 } = require('uuid');
 const { Sequelize } = require('sequelize');
 const { sequelize, initModels } = require('./db');
+const morgan = require('morgan');
+const debug = require('debug')('server:app');
+const os = require('os');
 
 const app = express();
 const server = http.createServer(app);
 
+// Add health check routes first (before any middleware)
+app.get(['/health', '/api/health'], (req, res) => {
+  debug('Health check requested from:', req.ip);
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    hostname: os.hostname(),
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    cpu: process.cpuUsage(),
+    pid: process.pid
+  });
+});
+
+// Add request logging early
+app.use(morgan('combined'));
+
+// Trust proxy headers since we're behind ALB
+app.set('trust proxy', true);
+
 // CORS configuration
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'],
+  origin: '*',  // Allow all origins in dev
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
+  credentials: true,
+  exposedHeaders: ['X-Request-ID', 'X-Response-Time']
 }));
+
+// Add response time header
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    res.setHeader('X-Response-Time', `${duration}ms`);
+  });
+  next();
+});
+
+// Add error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    error: 'Internal Server Error',
+    message: err.message,
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Socket.IO configuration
 const io = require('socket.io')(server, {
@@ -833,20 +877,22 @@ function generateReportContent(tasks, startDate, endDate) {
 }
 
 // HTTP endpoints for testing
-app.get('/api/members', async (req, res) => {
+app.get(['/members', '/api/members'], async (req, res) => {
   try {
     const members = await TeamMember.findAll();
     res.json(members);
   } catch (error) {
+    console.error('Error fetching members:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-app.get('/api/tasks', async (req, res) => {
+app.get(['/tasks', '/api/tasks'], async (req, res) => {
   try {
     const tasks = await Task.findAll();
     res.json(tasks);
   } catch (error) {
+    console.error('Error fetching tasks:', error);
     res.status(500).json({ error: error.message });
   }
 });

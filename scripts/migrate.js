@@ -1,6 +1,8 @@
 const { Sequelize } = require('sequelize');
 const { Umzug, SequelizeStorage } = require('umzug');
 const config = require('../database/config/config');
+const debug = require('debug')('app:migration');
+const debugError = require('debug')('app:migration:error');
 
 const env = process.env.NODE_ENV || 'development';
 const dbConfig = config[env];
@@ -13,17 +15,43 @@ const umzug = new Umzug({
   migrations: {
     glob: 'database/migrations/*.js',
     resolve: ({ name, path, context }) => {
+      debug('Loading migration:', { name, path });
       const migration = require(path);
       return {
         name,
-        up: async () => migration.up(context, Sequelize),
-        down: async () => migration.down(context, Sequelize),
+        up: async () => {
+          debug('Running migration up:', name);
+          const start = Date.now();
+          try {
+            await migration.up(context, Sequelize);
+            debug('Migration completed in', Date.now() - start, 'ms');
+          } catch (error) {
+            debugError('Migration failed:', error);
+            throw error;
+          }
+        },
+        down: async () => {
+          debug('Running migration down:', name);
+          const start = Date.now();
+          try {
+            await migration.down(context, Sequelize);
+            debug('Rollback completed in', Date.now() - start, 'ms');
+          } catch (error) {
+            debugError('Rollback failed:', error);
+            throw error;
+          }
+        },
       };
     },
   },
   context: sequelize.getQueryInterface(),
   storage: new SequelizeStorage({ sequelize }),
-  logger: console,
+  logger: {
+    debug: (msg) => debug(msg),
+    info: (msg) => debug(msg),
+    warn: (msg) => debugError(msg),
+    error: (msg) => debugError(msg)
+  },
 });
 
 // Run migrations
